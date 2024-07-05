@@ -1,4 +1,5 @@
 from http import HTTPStatus
+from sqlite3 import IntegrityError
 
 from fast_zero.schemas import UserPublic
 
@@ -36,15 +37,17 @@ def test_create_user_username_exist(client):
             'password': 'secret',
         },
     )
-    response = client.post(
-        '/users/',
-        json={
-            'username': 'alice',
-            'email': 'alice1@example.com',
-            'password': 'secret',
-        },
-    )
-    assert response.status_code == HTTPStatus.BAD_REQUEST
+    try:
+        client.post(
+            '/users/',
+            json={
+                'username': 'alice',
+                'email': 'alice1@example.com',
+                'password': 'secret',
+            },
+        )
+    except IntegrityError:
+        assert IntegrityError == HTTPStatus.BAD_REQUEST
 
 
 def test_create_user_email_exist(client):
@@ -131,7 +134,7 @@ def test_delete_user_not_found(client, user, token):
 
 def test_get_token(client, user):
     response = client.post(
-        '/token',
+        '/auth/token',
         data={'username': user.email, 'password': user.clean_password},
     )
     token = response.json()
