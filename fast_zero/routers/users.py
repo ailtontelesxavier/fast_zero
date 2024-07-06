@@ -17,11 +17,20 @@ router = APIRouter(prefix='/users', tags=['users'])
 
 @router.post('/', status_code=HTTPStatus.CREATED, response_model=UserPublic)
 def create_user(user: UserSchema, session: Session = Depends(get_session)):
-    db_user = session.scalar(select(User).where(User.email == user.email))
+    db_user = session.scalar(
+        select(User).where(
+            (User.email == user.email) | (User.username == user.username)
+        )
+    )
     if db_user:
+        if db_user.email == user.email:
+            raise HTTPException(
+                status_code=HTTPStatus.BAD_REQUEST,
+                detail='Email already registered',
+            )
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST,
-            detail='Email already registered',
+            detail='Username already registered',
         )
 
     hashed_password = get_password_hash(user.password)
