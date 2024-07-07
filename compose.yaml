@@ -1,0 +1,38 @@
+services:
+  fastzero_database:
+    image: postgres
+    networks:
+      backend:
+        ipv4_address: 172.16.238.10
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: app_user
+      POSTGRES_DB: app_db
+      POSTGRES_PASSWORD: app_password
+    ports:
+      - "5433:5432"
+
+  fastzero_app:
+    image: fastzero_app
+    entrypoint: ./entrypoint.sh
+    build: .
+    ports:
+      - "8001:8001"
+    networks:
+      backend:
+        ipv4_address: 172.16.238.11
+    depends_on:
+      - fastzero_database
+    environment:
+      DATABASE_URL: postgresql+psycopg://app_user:app_password@172.16.238.10:5432/app_db
+
+networks:
+  backend:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.16.238.0/24
+
+volumes:
+  pgdata:
