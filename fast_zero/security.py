@@ -39,6 +39,10 @@ def verify_password(plain_password: str, hashed_password: str):
     return pwd_context.verify(plain_password, hashed_password)
 
 
+def get_user_by_username(db: Session, username: str):
+    return db.query(User).filter(User.username == username).first()
+
+
 async def get_current_user(
     session: Session = Depends(get_session),
     token: str = Depends(oauth2_schema),
