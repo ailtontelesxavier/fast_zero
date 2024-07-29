@@ -20,6 +20,7 @@ class TodoState(str, Enum):
 class role_permissions:
     __tablename__ = 'role_permissions'
 
+    id: Mapped[int] = mapped_column(init=False, primary_key=True)
     role_id: Mapped[int] = mapped_column(ForeignKey('roles.id'))
     permission_id: Mapped[int] = mapped_column(ForeignKey('permissions.id'))
 
@@ -29,6 +30,7 @@ class role_permissions:
 class user_roles:
     __tablename__ = 'user_roles'
 
+    id: Mapped[int] = mapped_column(init=False, primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
     role_id: Mapped[int] = mapped_column(ForeignKey('roles.id'))
 
@@ -63,8 +65,8 @@ class Role:
     permissions: Mapped[list['Permission']] = relationship(
             'Permission', secondary='role_permissions', back_populates='roles'
         )
-    users: Mapped[list[User]] = relationship(
-        'User', secondary='user_roles', back_populates='roles'
+    users: Mapped[list['User']] = relationship(
+        'User', secondary='user_roles'
     )
 
 
