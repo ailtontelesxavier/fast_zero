@@ -2,7 +2,7 @@ from http import HTTPStatus
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from fast_zero.database import get_session
@@ -50,8 +50,9 @@ def create_user(user: UserSchema, session: T_Session):
 
 @router.get('/', response_model=UserList)
 def read_users(session: T_Session, skip: int = 0, limit: int = 100):
+    total_records = session.scalar(select(func.count(User.id)))
     users = session.scalars(select(User).offset(skip).limit(limit)).all()
-    return {'users': users}
+    return {'users': users, 'total_records': total_records}
 
 
 @router.put('/{user_id}', response_model=UserPublic)

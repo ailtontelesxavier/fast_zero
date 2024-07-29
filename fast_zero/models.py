@@ -1,7 +1,7 @@
 from datetime import datetime
 from enum import Enum
 
-from sqlalchemy import Column, ForeignKey, Integer, String, Table, func
+from sqlalchemy import Column, ForeignKey, Integer, String, func
 from sqlalchemy.orm import Mapped, mapped_column, registry, relationship
 
 table_registry = registry()
@@ -63,11 +63,9 @@ class Role:
     id: Mapped[int] = mapped_column(init=False, primary_key=True)
     name: Mapped[str] = mapped_column(unique=True, index=True)
     permissions: Mapped[list['Permission']] = relationship(
-            'Permission', secondary='role_permissions', back_populates='roles'
-        )
-    users: Mapped[list['User']] = relationship(
-        'User', secondary='user_roles'
+        'Permission', secondary='role_permissions', back_populates='roles'
     )
+    users: Mapped[list['User']] = relationship('User', secondary='user_roles')
 
 
 @table_registry.mapped_as_dataclass
@@ -75,11 +73,11 @@ class Permission:
     __tablename__ = 'permissions'
 
     id = Column(Integer, primary_key=True, index=True)
+    module = Mapped[str]
     name = Column(String, unique=True, index=True)
     roles: Mapped[list[Role]] = relationship(
         'Role', secondary='role_permissions', back_populates='permissions'
     )
-
 
 
 @table_registry.mapped_as_dataclass
