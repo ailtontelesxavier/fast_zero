@@ -49,10 +49,18 @@ def create_user(user: UserSchema, session: T_Session):
 
 
 @router.get('/', response_model=UserList)
-def read_users(session: T_Session, skip: int = 0, limit: int = 100):
+def read_users(session: T_Session, page: int = 1, page_size: int = 10):
+    skip = (page - 1) * page_size
+    limit = page_size
+
     total_records = session.scalar(select(func.count(User.id)))
     users = session.scalars(select(User).offset(skip).limit(limit)).all()
-    return {'users': users, 'total_records': total_records}
+    return {
+        'users': users,
+        'total_records': total_records,
+        'page': page,
+        'page_size': page_size
+    }
 
 
 @router.put('/{user_id}', response_model=UserPublic)

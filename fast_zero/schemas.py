@@ -23,6 +23,8 @@ class UserPublic(BaseModel):
 class UserList(BaseModel):
     users: list[UserPublic]
     total_records: int
+    page: int
+    page_size: int
 
 
 class Token(BaseModel):
