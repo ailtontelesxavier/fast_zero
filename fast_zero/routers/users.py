@@ -1,7 +1,7 @@
 from http import HTTPStatus
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Path
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
@@ -61,6 +61,20 @@ def read_users(session: T_Session, page: int = 1, page_size: int = 10):
         'page': page,
         'page_size': page_size
     }
+
+
+@router.get('/{user_id}', response_model=UserPublic)
+def get_user_by_id(
+    session: T_Session,
+    user_id: int = Path(..., title="The ID of the user to retrieve")
+):
+    user = session.get(User, user_id)
+    if user is None:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND,
+            detail='User not found',
+        )
+    return user
 
 
 @router.put('/{user_id}', response_model=UserPublic)
