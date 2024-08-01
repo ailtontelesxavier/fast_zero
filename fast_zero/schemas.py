@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel, ConfigDict, EmailStr
 
 from fast_zero.models import TodoState
@@ -17,7 +19,13 @@ class UserPublic(BaseModel):
     id: int
     username: str
     email: EmailStr
+    is_active: bool
     model_config = ConfigDict(from_attributes=True)
+
+
+class UserFull(UserPublic):
+    created_at: datetime
+    updated_at: datetime
 
 
 class UserList(BaseModel):
