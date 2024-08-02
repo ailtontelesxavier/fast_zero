@@ -77,19 +77,41 @@ class Role:
     permissions: Mapped[list['Permission']] = relationship(
         'Permission', secondary='role_permissions', back_populates='roles'
     )
-    users: Mapped[list['User']] = relationship('User', secondary='user_roles')
+
 
 
 @table_registry.mapped_as_dataclass
 class Permission:
     __tablename__ = 'permissions'
 
-    id = Column(Integer, primary_key=True, index=True)
-    module = Mapped[str]
-    name = Column(String, unique=True, index=True)
+    id: Mapped[int] = mapped_column(init=False, primary_key=True, index=True)
+    name: Mapped[str] = mapped_column(unique=True, index=True)
+    modules: Mapped[list['Module']] = relationship(
+        secondary='permission_module', back_populates='permissions'
+    )
     roles: Mapped[list[Role]] = relationship(
         'Role', secondary='role_permissions', back_populates='permissions'
     )
+
+
+@table_registry.mapped_as_dataclass
+class Module:
+    __tablename__ = 'module'
+
+    id: Mapped[int] = mapped_column(init=False, primary_key=True)
+    title: Mapped[str]
+    permissions: Mapped[list['Permission']] = relationship(
+        'Permission', secondary='permission_module', back_populates='modules'
+    )
+
+
+@table_registry.mapped_as_dataclass
+class PermissionModule:
+    __tablename__ = 'permission_module'
+
+    id: Mapped[int] = mapped_column(init=False, primary_key=True)
+    permission_id: Mapped[int] = mapped_column(ForeignKey('permissions.id'))
+    module_id: Mapped[int] = mapped_column(ForeignKey('module.id'))
 
 
 @table_registry.mapped_as_dataclass

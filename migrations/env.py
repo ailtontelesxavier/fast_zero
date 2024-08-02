@@ -8,7 +8,7 @@ from alembic import context
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 from fast_zero.models.models import table_registry
-from fast_zero.settings import Settings
+from fast_zero.core.settings import Settings
 
 config = context.config
 config.set_main_option('sqlalchemy.url', Settings().DATABASE_URL)

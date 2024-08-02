@@ -1,1 +1,10 @@
 Generic single-database configuration.
+
+alembic revision --autogenerate -m "mensagem_da_migracao"
+
+alembic upgrade head
+
+alembic history
+alembic current
+alembic heads
+alembic downgrade <versao>
