@@ -7,14 +7,14 @@ from sqlalchemy.orm import Session
 
 from fast_zero.core.database import get_session
 from fast_zero.models.models import Role
-from fast_zero.schemas.permissioes_schema import RolePublic, RoleSchema
+from fast_zero.schemas.permissioes_schema import RoleListSchema, RolePublic, RoleSchema
 
 router = APIRouter(prefix='/permissoes', tags=['permissoes'])
 T_Session = Annotated[Session, Depends(get_session)]
 
 
-@router.get('/role', response_model=RoleSchema)
-def read_module(session: T_Session, page: int = 1, page_size: int = 10):
+@router.get('/role', response_model=RoleListSchema)
+def read_role(session: T_Session, page: int = 1, page_size: int = 10):
     skip = (page - 1) * page_size
     limit = page_size
 
@@ -32,7 +32,7 @@ def read_module(session: T_Session, page: int = 1, page_size: int = 10):
 @router.post(
     '/role', status_code=HTTPStatus.CREATED, response_model=RolePublic
 )
-def create_module(role: RoleSchema, session: T_Session):
+def create_role(role: RoleSchema, session: T_Session):
     db_role = session.scalar(
         select(Role).where(Role.name == role.name)
     )

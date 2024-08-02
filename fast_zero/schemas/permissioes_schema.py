@@ -19,3 +19,7 @@ class RoleSchema(BaseModel):
 class RolePublic(BaseModel):
     id: int
     name: str
+
+class RoleListSchema(BaseModel):
+    roles: list[RolePublic]
+    total_records: int
