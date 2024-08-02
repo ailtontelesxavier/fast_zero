@@ -5,14 +5,14 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from fast_zero.database import get_session
-from fast_zero.models import User
-from fast_zero.schemas import Token
-from fast_zero.security import (
+from fast_zero.core.database import get_session
+from fast_zero.core.security import (
     create_access_token,
     get_current_user,
     verify_password,
 )
+from fast_zero.models.models import User
+from fast_zero.schemas.schemas import Token
 
 router = APIRouter(prefix='/auth', tags=['auth'])
 

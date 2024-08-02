@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from fast_zero.routers import auth, todos, users
-from fast_zero.schemas import Message
+from fast_zero.schemas.schemas import Message
 
 app = FastAPI()
 

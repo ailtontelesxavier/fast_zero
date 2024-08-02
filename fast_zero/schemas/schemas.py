@@ -2,7 +2,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, EmailStr
 
-from fast_zero.models import TodoState
+from fast_zero.models.models import TodoState
 
 
 class Message(BaseModel):
@@ -26,6 +26,10 @@ class UserPublic(BaseModel):
 class UserFull(UserPublic):
     created_at: datetime
     updated_at: datetime
+
+
+class UserPasswordUpdate(BaseModel):
+    password: str
 
 
 class UserList(BaseModel):

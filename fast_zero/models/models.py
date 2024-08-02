@@ -2,7 +2,13 @@ from datetime import datetime
 from enum import Enum
 
 from sqlalchemy import Column, ForeignKey, Integer, String, func
-from sqlalchemy.orm import Mapped, mapped_column, registry, relationship
+from sqlalchemy.orm import (
+    Mapped,
+    mapped_column,
+    registry,
+    relationship,
+    validates,
+)
 
 table_registry = registry()
 
@@ -54,6 +60,12 @@ class User:
     todos: Mapped[list['Todo']] = relationship(
         init=False, back_populates='user', cascade='all, delete-orphan'
     )
+
+    @validates('username')
+    def validate_username(self, key, value):  # noqa: PLR6301
+        if value is None or not value:
+            raise ValueError('Username não pode ser vazio')
+        return value
 
 
 @table_registry.mapped_as_dataclass
