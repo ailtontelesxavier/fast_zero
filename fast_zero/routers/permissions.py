@@ -7,7 +7,12 @@ from sqlalchemy.orm import Session
 
 from fast_zero.core.database import get_session
 from fast_zero.models.models import Role
-from fast_zero.schemas.permissioes_schema import RoleListSchema, RolePublic, RoleSchema
+from fast_zero.schemas.permissioes_schema import (
+    RoleListSchema,
+    RolePublic,
+    RoleSchema,
+)
+from fast_zero.schemas.schemas import Message
 
 router = APIRouter(prefix='/permissoes', tags=['permissoes'])
 T_Session = Annotated[Session, Depends(get_session)]
@@ -29,13 +34,24 @@ def read_role(session: T_Session, page: int = 1, page_size: int = 10):
     }
 
 
+@router.get('/role/{role_id}', response_model=RolePublic)
+def read_role_by_id(role_id: int, session: T_Session):
+    db_role = session.get(Role, role_id)
+
+    if db_role is None:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND,
+            detail='Perfil not found',
+        )
+
+    return db_role
+
+
 @router.post(
     '/role', status_code=HTTPStatus.CREATED, response_model=RolePublic
 )
 def create_role(role: RoleSchema, session: T_Session):
-    db_role = session.scalar(
-        select(Role).where(Role.name == role.name)
-    )
+    db_role = session.scalar(select(Role).where(Role.name == role.name))
 
     if db_role:
         raise HTTPException(
@@ -51,3 +67,53 @@ def create_role(role: RoleSchema, session: T_Session):
     session.commit()
     session.refresh(db_role)
     return db_role
+
+
+@router.put('/role/{role_id}', response_model=RolePublic)
+def update_role_by_id(role_id: int, role: RolePublic, session: T_Session):
+    db_role = session.get(Role, role_id)
+
+    if db_role is None:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND, detail='Perfil not found'
+        )
+
+    if role.id != role_id:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST, detail='Perfil ID diferentes'
+        )
+
+    db_role2 = session.scalar(
+        select(Role).where((Role.name == role.name) & (Role.id != role.id))
+    )
+
+    if db_role2:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail='Nome de Perfil ja cadastrado',
+        )
+
+    for key, value in role.model_dump(exclude_unset=True).items():
+        setattr(db_role, key, value)
+
+    session.add(db_role)
+    session.commit()
+    session.refresh(db_role)
+
+    return db_role
+
+
+@router.delete('/role/{role_id}', response_model=Message)
+def delete_role(role_id: int, session: T_Session):
+    db_role = session.get(Role, role_id)
+
+    if not db_role:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND,
+            detail='Perfil not found.'
+        )
+
+    session.delete(db_role)
+    session.commit()
+
+    return {'message': 'Perfil deletado'}

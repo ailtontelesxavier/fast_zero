@@ -1,7 +1,7 @@
 from datetime import datetime
 from enum import Enum
 
-from sqlalchemy import Column, ForeignKey, Integer, String, func
+from sqlalchemy import ForeignKey, func
 from sqlalchemy.orm import (
     Mapped,
     mapped_column,
@@ -77,7 +77,6 @@ class Role:
     permissions: Mapped[list['Permission']] = relationship(
         'Permission', secondary='role_permissions', back_populates='roles'
     )
-
 
 
 @table_registry.mapped_as_dataclass
