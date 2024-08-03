@@ -109,8 +109,7 @@ def delete_role(role_id: int, session: T_Session):
 
     if not db_role:
         raise HTTPException(
-            status_code=HTTPStatus.NOT_FOUND,
-            detail='Perfil not found.'
+            status_code=HTTPStatus.NOT_FOUND, detail='Perfil not found.'
         )
 
     session.delete(db_role)

@@ -1,15 +1,18 @@
 from pydantic import BaseModel
 
-from fast_zero.models.models import Module
-
-
-class ModuleFullSchema(BaseModel):
-    module: Module
-
 
 class ModuleSchema(BaseModel):
-    id: int | None
     title: str
+
+
+class ModulePublic(BaseModel):
+    id: int
+    title: str
+
+
+class ModuleListSchema(BaseModel):
+    modules: list[ModuleSchema]
+    total_records: int
 
 
 class RoleSchema(BaseModel):
