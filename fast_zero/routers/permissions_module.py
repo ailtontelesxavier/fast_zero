@@ -115,10 +115,10 @@ def delete_module(module_id: int, session: T_Session):
 
     if not db_module:
         raise HTTPException(
-            status_code=HTTPStatus.NOT_FOUND, detail='Perfil not found.'
+            status_code=HTTPStatus.NOT_FOUND, detail='Module not found.'
         )
 
     session.delete(db_module)
     session.commit()
 
-    return {'message': 'Perfil deletado'}
+    return {'message': 'Module deletado'}
