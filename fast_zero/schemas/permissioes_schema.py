@@ -11,7 +11,7 @@ class ModulePublic(BaseModel):
 
 
 class ModuleListSchema(BaseModel):
-    modules: list[ModuleSchema]
+    modules: list[ModulePublic]
     total_records: int
 
 
