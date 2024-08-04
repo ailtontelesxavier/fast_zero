@@ -20,9 +20,31 @@ T_Session = Annotated[Session, Depends(get_session)]
 
 
 @router.get('/permission', response_model=PermissionListSchema)
-def read_permission(session: T_Session, page: int = 1, page_size: int = 10):
+def read_permission(
+    session: T_Session, module: int = 0, page: int = 1, page_size: int = 10
+):
     skip = (page - 1) * page_size
     limit = page_size
+
+    if module:
+        subquery = (
+            select(Permission).where(Permission.module_id == module).subquery()
+        )
+        total_records = session.scalar(
+            select(func.count()).select_from(subquery)
+        )
+        permissions = session.scalars(
+            select(Permission)
+            .where(Permission.module_id == module)
+            .order_by(Permission.id)
+            .offset(skip)
+            .limit(limit)
+        ).all()
+
+        return {
+            'permissions': permissions,
+            'total_records': total_records,
+        }
 
     total_records = session.scalar(select(func.count(Permission.id)))
     permissions = session.scalars(

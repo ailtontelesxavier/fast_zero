@@ -4,7 +4,6 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
-from sqlalchemy.sql import text
 
 from fast_zero.core.database import get_session
 from fast_zero.models.models import Module
@@ -41,10 +40,11 @@ def get_modules_by_partial_title(
 ):
     skip = (page - 1) * page_size
     limit = page_size
-    partial_title = f"%{title}%"
+    partial_title = f'%{title}%'
 
-    subquery = select(Module).where(
-        Module.title.like(partial_title)).subquery()
+    subquery = (
+        select(Module).where(Module.title.like(partial_title)).subquery()
+    )
     total_records = session.scalar(select(func.count()).select_from(subquery))
     modules = session.scalars(
         select(Module)
