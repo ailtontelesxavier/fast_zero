@@ -27,3 +27,19 @@ class RolePublic(BaseModel):
 class RoleListSchema(BaseModel):
     roles: list[RolePublic]
     total_records: int
+
+
+class PermissionSchema(BaseModel):
+    name: str
+    description: str
+    module_id: int
+
+
+class PermissionPublic(PermissionSchema):
+    id: int
+    module: ModulePublic
+
+
+class PermissionListSchema(BaseModel):
+    permissions: list[PermissionPublic]
+    total_records: int

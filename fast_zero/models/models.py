@@ -1,7 +1,7 @@
 from datetime import datetime
 from enum import Enum
 
-from sqlalchemy import ForeignKey, func
+from sqlalchemy import ForeignKey, UniqueConstraint, func
 from sqlalchemy.orm import (
     Mapped,
     mapped_column,
@@ -82,11 +82,17 @@ class Role:
 @table_registry.mapped_as_dataclass
 class Permission:
     __tablename__ = 'permissions'
+    __table_args__ = (
+        UniqueConstraint('name', 'module_id', name='uix_name_modules'),
+    )
 
     id: Mapped[int] = mapped_column(init=False, primary_key=True, index=True)
-    name: Mapped[str] = mapped_column(unique=True, index=True)
-    modules: Mapped[list['Module']] = relationship(
-        secondary='permission_module', back_populates='permissions'
+    name: Mapped[str]
+    description: Mapped[str] = mapped_column(nullable=True)
+    module_id: Mapped[int] = mapped_column(ForeignKey('module.id'))
+
+    module: Mapped['Module'] = relationship(
+        'Module', back_populates='permissions'
     )
     roles: Mapped[list[Role]] = relationship(
         'Role', secondary='role_permissions', back_populates='permissions'
@@ -100,17 +106,8 @@ class Module:
     id: Mapped[int] = mapped_column(init=False, primary_key=True)
     title: Mapped[str]
     permissions: Mapped[list['Permission']] = relationship(
-        'Permission', secondary='permission_module', back_populates='modules'
+        'Permission', back_populates='module'
     )
-
-
-@table_registry.mapped_as_dataclass
-class PermissionModule:
-    __tablename__ = 'permission_module'
-
-    id: Mapped[int] = mapped_column(init=False, primary_key=True)
-    permission_id: Mapped[int] = mapped_column(ForeignKey('permissions.id'))
-    module_id: Mapped[int] = mapped_column(ForeignKey('module.id'))
 
 
 @table_registry.mapped_as_dataclass
