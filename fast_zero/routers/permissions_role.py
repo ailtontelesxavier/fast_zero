@@ -8,13 +8,14 @@ from sqlalchemy.orm import Session
 from fast_zero.core.database import get_session
 from fast_zero.models.models import Role
 from fast_zero.schemas.permissioes_schema import (
+    RoleList,
     RoleListSchema,
     RolePublic,
     RoleSchema,
 )
 from fast_zero.schemas.schemas import Message
 
-router = APIRouter(prefix='/permissoes', tags=['permissoes'])
+router = APIRouter(prefix='/permissoes', tags=['role'])
 T_Session = Annotated[Session, Depends(get_session)]
 
 
@@ -45,6 +46,30 @@ def read_role_by_id(role_id: int, session: T_Session):
         )
 
     return db_role
+
+
+@router.get('/role/find/', response_model=RoleList)
+def get_roles_by_partial_name(
+    name: str, session: T_Session, page: int = 1, page_size: int = 10
+):
+    skip = (page - 1) * page_size
+    limit = page_size
+    partial_name = f'%{name}%'
+
+    subquery = select(Role).where(Role.name.like(partial_name)).subquery()
+    total_records = session.scalar(select(func.count()).select_from(subquery))
+    roles = session.scalars(
+        select(Role)
+        .where(Role.name.like(partial_name))
+        .order_by(Role.id)
+        .offset(skip)
+        .limit(limit)
+    ).all()
+
+    return {
+        'roles': roles,
+        'total_records': total_records,
+    }
 
 
 @router.post(

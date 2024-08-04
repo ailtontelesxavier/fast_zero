@@ -24,8 +24,19 @@ class RolePublic(BaseModel):
     name: str
 
 
+class RoleFull(BaseModel):
+    id: int
+    name: str
+    permissions: list['PermissionPublic']
+
+
 class RoleListSchema(BaseModel):
     roles: list[RolePublic]
+    total_records: int
+
+
+class RoleList(BaseModel):
+    roles: list[RoleFull]
     total_records: int
 
 
@@ -49,4 +60,18 @@ class PermissionPublic(PermissionSchema):
 
 class PermissionListSchema(BaseModel):
     permissions: list[PermissionPublic]
+    total_records: int
+
+
+class RolePermissionsSchema(BaseModel):
+    role_id: int
+    permission_id: int
+
+
+class RolePermissionsPublicSchema(RolePermissionsSchema):
+    id: int
+
+
+class RolePermissionListSchema(BaseModel):
+    role_permissions: list[RolePermissionsPublicSchema]
     total_records: int

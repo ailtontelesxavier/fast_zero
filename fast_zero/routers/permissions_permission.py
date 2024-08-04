@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from fast_zero.core.database import get_session
 from fast_zero.models.models import Module, Permission
 from fast_zero.schemas.permissioes_schema import (
+    ModulePublic,
     PermissionListSchema,
     PermissionPublic,
     PermissionSchema,
@@ -15,7 +16,7 @@ from fast_zero.schemas.permissioes_schema import (
 )
 from fast_zero.schemas.schemas import Message
 
-router = APIRouter(prefix='/permissoes', tags=['permissoes'])
+router = APIRouter(prefix='/permissoes', tags=['permission'])
 T_Session = Annotated[Session, Depends(get_session)]
 
 
@@ -53,6 +54,49 @@ def read_permission(
 
     return {
         'permissions': permissions,
+        'total_records': total_records,
+    }
+
+
+@router.get('/permission/search/', response_model=PermissionListSchema)
+def read_permissions_by_name_or_module(
+    session: T_Session, title: str, page: int = 1, page_size: int = 10
+):
+    skip = (page - 1) * page_size
+    limit = page_size
+
+    partial_name = f'%{title}%'
+
+    # Junção entre Permission e Module
+    query = (
+        select(Permission, Module)
+        .join(Module, Permission.module_id == Module.id)
+        .where(
+            (Permission.name.like(partial_name)) |
+            (Module.title.like(partial_name))
+        )
+    )
+
+    subquery = query.subquery()
+    total_records = session.scalar(select(func.count()).select_from(subquery))
+
+    permissions = session.execute(
+        query.order_by(Permission.id).offset(skip).limit(limit)
+    ).all()
+
+    permissions_list = [
+        PermissionPublic(
+            id=perm.Permission.id,
+            name=perm.Permission.name,
+            description=perm.Permission.description,
+            module_id=perm.Permission.module_id,
+            module=ModulePublic(id=perm.Module.id, title=perm.Module.title)
+        )
+        for perm in permissions
+    ]
+
+    return {
+        'permissions': permissions_list,
         'total_records': total_records,
     }
 

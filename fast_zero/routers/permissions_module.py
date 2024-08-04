@@ -34,7 +34,7 @@ def read_module(session: T_Session, page: int = 1, page_size: int = 10):
     }
 
 
-@router.get('/module/find', response_model=ModuleListSchema)
+@router.get('/module/find/', response_model=ModuleListSchema)
 def get_modules_by_partial_title(
     title: str, session: T_Session, page: int = 1, page_size: int = 10
 ):

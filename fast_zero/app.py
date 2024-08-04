@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from fast_zero.routers import (
     auth,
+    permission_role_permission,
     permissions_module,
     permissions_permission,
     permissions_role,
@@ -34,6 +35,7 @@ app.include_router(users.router)
 app.include_router(permissions_role.router)
 app.include_router(permissions_module.router)
 app.include_router(permissions_permission.router)
+app.include_router(permission_role_permission.router)
 app.include_router(auth.router)
 app.include_router(todos.router)
 

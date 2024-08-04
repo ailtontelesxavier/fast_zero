@@ -23,8 +23,11 @@ class TodoState(str, Enum):
 
 # Associação muitos-para-muitos entre Roles e Permissões
 @table_registry.mapped_as_dataclass
-class role_permissions:
+class RolePermissions:
     __tablename__ = 'role_permissions'
+    __table_args__ = (
+        UniqueConstraint('role_id', 'permission_id', name='uix_role_id_permission_id'),
+    )
 
     id: Mapped[int] = mapped_column(init=False, primary_key=True)
     role_id: Mapped[int] = mapped_column(ForeignKey('roles.id'))
