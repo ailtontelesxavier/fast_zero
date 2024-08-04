@@ -35,6 +35,12 @@ class PermissionSchema(BaseModel):
     module_id: int
 
 
+class PermissionUpdateSchema(BaseModel):
+    id: int
+    name: str
+    description: str
+    module_id: int
+
 class PermissionPublic(PermissionSchema):
     id: int
     module: ModulePublic

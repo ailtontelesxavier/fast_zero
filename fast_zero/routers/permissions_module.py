@@ -4,6 +4,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
+from sqlalchemy.sql import text
 
 from fast_zero.core.database import get_session
 from fast_zero.models.models import Module
@@ -26,6 +27,31 @@ def read_module(session: T_Session, page: int = 1, page_size: int = 10):
     total_records = session.scalar(select(func.count(Module.id)))
     modules = session.scalars(
         select(Module).order_by(Module.id).offset(skip).limit(limit)
+    ).all()
+
+    return {
+        'modules': modules,
+        'total_records': total_records,
+    }
+
+
+@router.get('/module/find', response_model=ModuleListSchema)
+def get_modules_by_partial_title(
+    title: str, session: T_Session, page: int = 1, page_size: int = 10
+):
+    skip = (page - 1) * page_size
+    limit = page_size
+    partial_title = f"%{title}%"
+
+    subquery = select(Module).where(
+        Module.title.like(partial_title)).subquery()
+    total_records = session.scalar(select(func.count()).select_from(subquery))
+    modules = session.scalars(
+        select(Module)
+        .where(Module.title.like(partial_title))
+        .order_by(Module.id)
+        .offset(skip)
+        .limit(limit)
     ).all()
 
     return {

@@ -11,6 +11,7 @@ from fast_zero.schemas.permissioes_schema import (
     PermissionListSchema,
     PermissionPublic,
     PermissionSchema,
+    PermissionUpdateSchema,
 )
 from fast_zero.schemas.schemas import Message
 
@@ -50,7 +51,7 @@ def read_permission_by_id(permission_id: int, session: T_Session):
 @router.post(
     '/permission',
     status_code=HTTPStatus.CREATED,
-    response_model=PermissionPublic
+    response_model=PermissionPublic,
 )
 def create_permission(permission: PermissionSchema, session: T_Session):
     db_permission = session.scalar(
@@ -77,7 +78,7 @@ def create_permission(permission: PermissionSchema, session: T_Session):
         description=permission.description,
         module_id=permission.module_id,
         module=db_module,
-        roles=[]
+        roles=[],
     )
 
     session.add(db_permission)
@@ -88,7 +89,7 @@ def create_permission(permission: PermissionSchema, session: T_Session):
 
 @router.put('/permission/{permission_id}', response_model=PermissionPublic)
 def update_permission_by_id(
-    permission_id: int, permission: PermissionPublic, session: T_Session
+    permission_id: int, permission: PermissionUpdateSchema, session: T_Session
 ):
     db_permission = session.get(Permission, permission_id)
 
@@ -100,7 +101,7 @@ def update_permission_by_id(
     if permission.id != permission_id:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST,
-            detail='Permission ID diferentes'
+            detail='Permission ID diferentes',
         )
 
     for key, value in permission.model_dump(exclude_unset=True).items():
