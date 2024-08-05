@@ -4,6 +4,7 @@ from enum import Enum
 from sqlalchemy import ForeignKey, UniqueConstraint, func
 from sqlalchemy.orm import (
     Mapped,
+    Session,
     mapped_column,
     registry,
     relationship,
@@ -78,7 +79,8 @@ class Role:
     id: Mapped[int] = mapped_column(init=False, primary_key=True)
     name: Mapped[str] = mapped_column(unique=True, index=True)
     permissions: Mapped[list['Permission']] = relationship(
-        'Permission', secondary='role_permissions', back_populates='roles'
+        'Permission', secondary='role_permissions', back_populates='roles',
+        order_by=('Permission.name')
     )
 
 
@@ -95,11 +97,19 @@ class Permission:
     module_id: Mapped[int] = mapped_column(ForeignKey('module.id'))
 
     module: Mapped['Module'] = relationship(
-        'Module', back_populates='permissions'
+        'Module', back_populates='permissions',
+        order_by=('Module.title')
     )
     roles: Mapped[list[Role]] = relationship(
-        'Role', secondary='role_permissions', back_populates='permissions'
+        'Role', secondary='role_permissions', back_populates='permissions',
     )
+
+    @classmethod
+    def get_by_module_and_name(
+        cls, session: Session, module_id: int, name: str
+    ):
+        return session.query(cls).filter_by(
+            module_id=module_id, name=name).first()
 
 
 @table_registry.mapped_as_dataclass

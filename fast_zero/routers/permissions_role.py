@@ -2,12 +2,13 @@ from http import HTTPStatus
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import func, select
-from sqlalchemy.orm import Session
+from sqlalchemy import asc, func, select
+from sqlalchemy.orm import Session, joinedload
 
 from fast_zero.core.database import get_session
-from fast_zero.models.models import Role
+from fast_zero.models.models import Permission, Role
 from fast_zero.schemas.permissioes_schema import (
+    RoleFull,
     RoleList,
     RoleListSchema,
     RolePublic,
@@ -37,6 +38,19 @@ def read_role(session: T_Session, page: int = 1, page_size: int = 10):
 
 @router.get('/role/{role_id}', response_model=RolePublic)
 def read_role_by_id(role_id: int, session: T_Session):
+    db_role = session.get(Role, role_id)
+
+    if db_role is None:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND,
+            detail='Perfil not found',
+        )
+
+    return db_role
+
+
+@router.get('/role/full/{role_id}', response_model=RoleFull)
+def read_role_full_by_id(role_id: int, session: T_Session):
     db_role = session.get(Role, role_id)
 
     if db_role is None:

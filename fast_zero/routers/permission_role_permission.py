@@ -12,6 +12,7 @@ from fast_zero.schemas.permissioes_schema import (
     RolePermissionsPublicSchema,
     RolePermissionsSchema,
 )
+from fast_zero.schemas.schemas import Message
 
 router = APIRouter(prefix='/permissoes', tags=['role-permission'])
 T_Session = Annotated[Session, Depends(get_session)]
@@ -65,3 +66,19 @@ def create_role_permission(
     session.commit()
     session.refresh(db_row)
     return db_row
+
+
+@router.delete('/role-permission/{role_permission_id}', response_model=Message)
+def delete_rele_permission(role_permission_id: int, session: T_Session):
+    db_row = session.get(RolePermissions, role_permission_id)
+
+    if not db_row:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND,
+            detail='Role Permission not found.'
+        )
+
+    session.delete(db_row)
+    session.commit()
+
+    return {'message': 'Role Permission deletado'}
