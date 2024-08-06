@@ -80,7 +80,7 @@ class Role:
     name: Mapped[str] = mapped_column(unique=True, index=True)
     permissions: Mapped[list['Permission']] = relationship(
         'Permission', secondary='role_permissions', back_populates='roles',
-        order_by=('Permission.name')
+        order_by=('Permission.module_id')
     )
 
 
@@ -102,6 +102,7 @@ class Permission:
     )
     roles: Mapped[list[Role]] = relationship(
         'Role', secondary='role_permissions', back_populates='permissions',
+        order_by=('Permission.name')
     )
 
     @classmethod

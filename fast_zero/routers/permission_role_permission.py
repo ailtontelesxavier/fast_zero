@@ -69,8 +69,32 @@ def create_role_permission(
 
 
 @router.delete('/role-permission/{role_permission_id}', response_model=Message)
-def delete_rele_permission(role_permission_id: int, session: T_Session):
+def delete_rele_permission_by_id(role_permission_id: int, session: T_Session):
     db_row = session.get(RolePermissions, role_permission_id)
+
+    if not db_row:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND,
+            detail='Role Permission not found.'
+        )
+
+    session.delete(db_row)
+    session.commit()
+
+    return {'message': 'Role Permission deletado'}
+
+
+@router.delete('/role-permission/role_by_permission/',
+               response_model=Message)
+def delete_rele_permission_by_role_permission(
+    role_id: int, permission_id: int, session: T_Session
+):
+    db_row = session.scalar(
+        select(RolePermissions).where(
+            (RolePermissions.role_id == role_id)
+            & (RolePermissions.permission_id == permission_id)
+        )
+    )
 
     if not db_row:
         raise HTTPException(
