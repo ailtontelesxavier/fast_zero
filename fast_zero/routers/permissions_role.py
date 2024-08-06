@@ -2,11 +2,11 @@ from http import HTTPStatus
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import asc, func, select
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy import func, select
+from sqlalchemy.orm import Session
 
 from fast_zero.core.database import get_session
-from fast_zero.models.models import Permission, Role
+from fast_zero.models.models import Role
 from fast_zero.schemas.permissioes_schema import (
     RoleFull,
     RoleList,

@@ -12,6 +12,7 @@ from fast_zero.core.security import (
 )
 from fast_zero.models.models import User
 from fast_zero.schemas.schemas import (
+    ListUserFull,
     Message,
     UserFull,
     UserList,
@@ -70,6 +71,32 @@ def read_users(session: T_Session, page: int = 1, page_size: int = 10):
         'page': page,
         'page_size': page_size,
     }
+
+
+@router.get('/user/{username}', response_model=UserFull)
+def get_user_by_username(
+    session: T_Session,
+    username: str = Path(..., title='nome de usuario'),
+):
+    user = User.get_by_username(session, username)
+    if user is None:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND,
+            detail='User not found',
+        )
+    return user
+
+
+@router.get('/user-like/{username}', response_model=ListUserFull)
+def get_user_like_by_username(
+    session: T_Session,
+    username: str = Path(..., title='nome de usuario'),
+    page: int = 1,
+    page_size: int = 10,
+):
+    db_rows = User.get_like_by_username(session, username, page, page_size)
+
+    return db_rows
 
 
 @router.get('/{user_id}', response_model=UserFull)

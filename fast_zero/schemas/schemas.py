@@ -28,6 +28,11 @@ class UserFull(UserPublic):
     updated_at: datetime
 
 
+class ListUserFull(BaseModel):
+    rows: list[UserFull]
+    total_records: int
+
+
 class UserPasswordUpdate(BaseModel):
     password: str
 

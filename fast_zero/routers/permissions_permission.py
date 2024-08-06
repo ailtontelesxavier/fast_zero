@@ -72,8 +72,8 @@ def read_permissions_by_name_or_module(
         select(Permission, Module)
         .join(Module, Permission.module_id == Module.id)
         .where(
-            (Permission.name.like(partial_name)) |
-            (Module.title.like(partial_name))
+            (Permission.name.like(partial_name))
+            | (Module.title.like(partial_name))
         )
     )
 
@@ -90,7 +90,7 @@ def read_permissions_by_name_or_module(
             name=perm.Permission.name,
             description=perm.Permission.description,
             module_id=perm.Permission.module_id,
-            module=ModulePublic(id=perm.Module.id, title=perm.Module.title)
+            module=ModulePublic(id=perm.Module.id, title=perm.Module.title),
         )
         for perm in permissions
     ]

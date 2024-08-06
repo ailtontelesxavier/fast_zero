@@ -75,7 +75,7 @@ def delete_rele_permission_by_id(role_permission_id: int, session: T_Session):
     if not db_row:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND,
-            detail='Role Permission not found.'
+            detail='Role Permission not found.',
         )
 
     session.delete(db_row)
@@ -84,8 +84,7 @@ def delete_rele_permission_by_id(role_permission_id: int, session: T_Session):
     return {'message': 'Role Permission deletado'}
 
 
-@router.delete('/role-permission/role_by_permission/',
-               response_model=Message)
+@router.delete('/role-permission/role_by_permission/', response_model=Message)
 def delete_rele_permission_by_role_permission(
     role_id: int, permission_id: int, session: T_Session
 ):
@@ -99,7 +98,7 @@ def delete_rele_permission_by_role_permission(
     if not db_row:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND,
-            detail='Role Permission not found.'
+            detail='Role Permission not found.',
         )
 
     session.delete(db_row)

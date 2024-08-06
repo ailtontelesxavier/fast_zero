@@ -1,7 +1,7 @@
 from datetime import datetime
 from enum import Enum
 
-from sqlalchemy import ForeignKey, UniqueConstraint, func
+from sqlalchemy import ForeignKey, UniqueConstraint, func, select
 from sqlalchemy.orm import (
     Mapped,
     Session,
@@ -27,7 +27,9 @@ class TodoState(str, Enum):
 class RolePermissions:
     __tablename__ = 'role_permissions'
     __table_args__ = (
-        UniqueConstraint('role_id', 'permission_id', name='uix_role_id_permission_id'),
+        UniqueConstraint(
+            'role_id', 'permission_id', name='uix_role_id_permission_id'
+        ),
     )
 
     id: Mapped[int] = mapped_column(init=False, primary_key=True)
@@ -71,6 +73,44 @@ class User:
             raise ValueError('Username não pode ser vazio')
         return value
 
+    @classmethod
+    def get_by_username(cls, session: Session, username: str):
+        return session.query(cls).filter_by(username=username).first()
+
+    @classmethod
+    def get_like_by_username(
+        cls,
+        session: Session,
+        username: str,
+        page: int = 1,
+        page_size: int = 10,
+    ):
+        skip = (page - 1) * page_size
+        limit = page_size
+        partial_name = f'%{username}%'
+
+        subquery = (
+            select(cls).where(cls.username.like(partial_name)).subquery()
+        )
+
+        total_records = session.scalar(
+            select(func.count()).select_from(subquery)
+        )
+
+        rows = (
+            session.query(cls)
+            .filter(cls.username.like(partial_name))
+            .order_by(cls.id)
+            .offset(skip)
+            .limit(limit)
+            .all()
+        )
+
+        return {
+            'rows': rows,
+            'total_records': total_records,
+        }
+
 
 @table_registry.mapped_as_dataclass
 class Role:
@@ -79,8 +119,10 @@ class Role:
     id: Mapped[int] = mapped_column(init=False, primary_key=True)
     name: Mapped[str] = mapped_column(unique=True, index=True)
     permissions: Mapped[list['Permission']] = relationship(
-        'Permission', secondary='role_permissions', back_populates='roles',
-        order_by=('Permission.module_id')
+        'Permission',
+        secondary='role_permissions',
+        back_populates='roles',
+        order_by=('Permission.module_id'),
     )
 
 
@@ -97,20 +139,24 @@ class Permission:
     module_id: Mapped[int] = mapped_column(ForeignKey('module.id'))
 
     module: Mapped['Module'] = relationship(
-        'Module', back_populates='permissions',
-        order_by=('Module.title')
+        'Module', back_populates='permissions', order_by=('Module.title')
     )
     roles: Mapped[list[Role]] = relationship(
-        'Role', secondary='role_permissions', back_populates='permissions',
-        order_by=('Permission.name')
+        'Role',
+        secondary='role_permissions',
+        back_populates='permissions',
+        order_by=('Permission.name'),
     )
 
     @classmethod
     def get_by_module_and_name(
         cls, session: Session, module_id: int, name: str
     ):
-        return session.query(cls).filter_by(
-            module_id=module_id, name=name).first()
+        return (
+            session.query(cls)
+            .filter_by(module_id=module_id, name=name)
+            .first()
+        )
 
 
 @table_registry.mapped_as_dataclass
