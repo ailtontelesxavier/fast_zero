@@ -217,7 +217,7 @@ def delete_user(
     return {'message': 'User deleted'}
 
 
-@router.get('/user-role/{username}', response_model=ListUserFull)
+@router.get('/user-role/{user_id}', response_model=ListUserFull)
 def get_role_by_user_id(
     session: T_Session,
     user_id: int = Path(..., title='id do usuario'),
@@ -225,12 +225,14 @@ def get_role_by_user_id(
     page_size: int = 10,
 ):
     row = session.get(User, user_id)
+    user = session.query(User).filter_by(id=user_id).one_or_none()
 
     if row is None:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND, detail='User not found.'
         )
 
+    db_rows = user.roles.order_by(UserRoles.id.desc()).limit(10).all()
     db_rows = UserRoles.get_role_by_user_id(session, user_id, page, page_size)
 
     return db_rows

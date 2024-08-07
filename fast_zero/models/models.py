@@ -1,9 +1,11 @@
 from datetime import datetime
 from enum import Enum
 
+from sqlalchemy import BigInteger
 from sqlalchemy import ForeignKey, UniqueConstraint, func, select
 from sqlalchemy.orm import (
     Mapped,
+    DeclarativeBase,
     Session,
     mapped_column,
     registry,
@@ -11,7 +13,22 @@ from sqlalchemy.orm import (
     validates,
 )
 
+
+
 table_registry = registry()
+
+
+class Base:
+    @classmethod
+    def get_by_id(cls, session: Session, id: BigInteger):
+        return session.get(cls, cls.id)
+
+    @classmethod
+    def delete(cls, session: Session):
+        row = session.get(cls, cls.id)
+        session.delete(row)
+        session.commit()
+        return {'message': F'<{row}> deleted'}
 
 
 class TodoState(str, Enum):
@@ -24,7 +41,7 @@ class TodoState(str, Enum):
 
 # Associação muitos-para-muitos entre Roles e Permissões
 @table_registry.mapped_as_dataclass
-class RolePermissions:
+class RolePermissions(Base):
     __tablename__ = 'role_permissions'
     __table_args__ = (
         UniqueConstraint(
@@ -32,17 +49,17 @@ class RolePermissions:
         ),
     )
 
-    id: Mapped[int] = mapped_column(init=False, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     role_id: Mapped[int] = mapped_column(ForeignKey('roles.id'))
     permission_id: Mapped[int] = mapped_column(ForeignKey('permissions.id'))
 
 
 # Associação muitos-para-muitos entre Usuários e Roles
 @table_registry.mapped_as_dataclass
-class UserRoles:
+class UserRoles(Base):
     __tablename__ = 'user_roles'
 
-    id: Mapped[int] = mapped_column(init=False, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
     role_id: Mapped[int] = mapped_column(ForeignKey('roles.id'))
 
@@ -80,10 +97,10 @@ class UserRoles:
 
 
 @table_registry.mapped_as_dataclass
-class User:
+class User(Base):
     __tablename__ = 'users'
 
-    id: Mapped[int] = mapped_column(init=False, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     username: Mapped[str] = mapped_column(unique=True)
     password: Mapped[str]
     email: Mapped[str] = mapped_column(unique=True)
@@ -98,6 +115,12 @@ class User:
     todos: Mapped[list['Todo']] = relationship(
         init=False, back_populates='user', cascade='all, delete-orphan'
     )
+
+    roles = relationship('UserRoles', backref='User', lazy='dynamic')
+
+    def __repr__(self):
+        return f'<User {self.username} - {self.email} >'
+
 
     @validates('username')
     def validate_username(self, key, value):  # noqa: PLR6301
@@ -145,10 +168,10 @@ class User:
 
 
 @table_registry.mapped_as_dataclass
-class Role:
+class Role(Base):
     __tablename__ = 'roles'
 
-    id: Mapped[int] = mapped_column(init=False, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     name: Mapped[str] = mapped_column(unique=True, index=True)
     permissions: Mapped[list['Permission']] = relationship(
         'Permission',
@@ -159,13 +182,13 @@ class Role:
 
 
 @table_registry.mapped_as_dataclass
-class Permission:
+class Permission(Base):
     __tablename__ = 'permissions'
     __table_args__ = (
         UniqueConstraint('name', 'module_id', name='uix_name_modules'),
     )
 
-    id: Mapped[int] = mapped_column(init=False, primary_key=True, index=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     name: Mapped[str]
     description: Mapped[str] = mapped_column(nullable=True)
     module_id: Mapped[int] = mapped_column(ForeignKey('module.id'))
@@ -192,10 +215,10 @@ class Permission:
 
 
 @table_registry.mapped_as_dataclass
-class Module:
+class Module(Base):
     __tablename__ = 'module'
 
-    id: Mapped[int] = mapped_column(init=False, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     title: Mapped[str]
     permissions: Mapped[list['Permission']] = relationship(
         'Permission', back_populates='module'
@@ -203,10 +226,10 @@ class Module:
 
 
 @table_registry.mapped_as_dataclass
-class Todo:
+class Todo(Base):
     __tablename__ = 'todos'
 
-    id: Mapped[int] = mapped_column(init=False, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     title: Mapped[str]
     description: Mapped[str]
     state: Mapped[TodoState]
