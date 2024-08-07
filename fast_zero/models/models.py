@@ -180,6 +180,9 @@ class Role(Base):
         order_by=('Permission.module_id'),
     )
 
+    def __repr__(self):
+        return f'<Role {self.name}>'
+
 
 @table_registry.mapped_as_dataclass
 class Permission(Base):
@@ -203,6 +206,9 @@ class Permission(Base):
         order_by=('Permission.name'),
     )
 
+    def __repr__(self):
+        return f'<Permission {self.name}>'
+
     @classmethod
     def get_by_module_and_name(
         cls, session: Session, module_id: int, name: str
@@ -224,6 +230,8 @@ class Module(Base):
         'Permission', back_populates='module'
     )
 
+    def __repr__(self):
+        return f'<Module {self.title}>'
 
 @table_registry.mapped_as_dataclass
 class Todo(Base):
