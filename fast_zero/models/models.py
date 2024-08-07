@@ -39,12 +39,44 @@ class RolePermissions:
 
 # Associação muitos-para-muitos entre Usuários e Roles
 @table_registry.mapped_as_dataclass
-class user_roles:
+class UserRoles:
     __tablename__ = 'user_roles'
 
     id: Mapped[int] = mapped_column(init=False, primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
     role_id: Mapped[int] = mapped_column(ForeignKey('roles.id'))
+
+    @classmethod
+    def get_role_by_user_id(
+        cls,
+        session: Session,
+        user_id: int,
+        page: int = 1,
+        page_size: int = 10,
+    ):
+        skip = (page - 1) * page_size
+        limit = page_size
+
+        subquery = (
+            select(cls).where(cls.user_id == user_id).subquery()
+        )
+
+        total_records = session.scalar(
+            select(func.count()).select_from(subquery)
+        )
+
+        rows = (
+            session.query(subquery)
+            .order_by(cls.id)
+            .offset(skip)
+            .limit(limit)
+            .all()
+        )
+
+        return {
+            'rows': rows,
+            'total_records': total_records,
+        }
 
 
 @table_registry.mapped_as_dataclass

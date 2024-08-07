@@ -44,6 +44,20 @@ class UserList(BaseModel):
     page_size: int
 
 
+class UserRolesSchema(BaseModel):
+    user_id: int
+    role_id: int
+
+
+class UserRolesPublic(UserRolesSchema):
+    id: int
+
+
+class UserRolesList(BaseModel):
+    rows: list[UserRolesPublic]
+    total_records: int
+
+
 class Token(BaseModel):
     access_token: str
     token_type: str

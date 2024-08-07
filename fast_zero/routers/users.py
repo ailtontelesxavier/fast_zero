@@ -10,7 +10,7 @@ from fast_zero.core.security import (
     get_current_user,
     get_password_hash,
 )
-from fast_zero.models.models import User
+from fast_zero.models.models import User, UserRoles
 from fast_zero.schemas.schemas import (
     ListUserFull,
     Message,
@@ -215,3 +215,22 @@ def delete_user(
     session.commit()
 
     return {'message': 'User deleted'}
+
+
+@router.get('/user-role/{username}', response_model=ListUserFull)
+def get_role_by_user_id(
+    session: T_Session,
+    user_id: int = Path(..., title='id do usuario'),
+    page: int = 1,
+    page_size: int = 10,
+):
+    row = session.get(User, user_id)
+
+    if row is None:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND, detail='User not found.'
+        )
+
+    db_rows = UserRoles.get_role_by_user_id(session, user_id, page, page_size)
+
+    return db_rows
