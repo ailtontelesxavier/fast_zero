@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from fast_zero.core.database import get_session
 from fast_zero.models.models import Module, Permission
 from fast_zero.schemas.permissioes_schema import (
+    ModuleOutSchema,
     PermissionListSchema,
     PermissionPublic,
     PermissionSchema,
@@ -89,7 +90,7 @@ def read_permissions_by_name_or_module(
             name=perm.Permission.name,
             description=perm.Permission.description,
             module_id=perm.Permission.module_id,
-            module=ModulePublic(id=perm.Module.id, title=perm.Module.title),
+            module=ModuleOutSchema(id=perm.Module.id, title=perm.Module.title),
         )
         for perm in permissions
     ]
@@ -139,7 +140,6 @@ def create_permission(permission: PermissionSchema, session: T_Session):
         )
 
     db_permission = Permission(
-        id=None,
         name=permission.name,
         description=permission.description,
         module_id=permission.module_id,
