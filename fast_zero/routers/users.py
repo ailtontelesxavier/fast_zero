@@ -19,6 +19,7 @@ from fast_zero.schemas.schemas import (
     UserPasswordUpdate,
     UserPublic,
     UserRolesIn,
+    UserRolesList,
     UserRolesOut,
     UserSchema,
 )
@@ -219,10 +220,10 @@ def delete_user(
     return {'message': 'User deleted'}
 
 
-@router.get('/user-role/{user_id}', response_model=ListUserFull)
+@router.get('/user-role/{user_id}', response_model=UserRolesList)
 def get_role_by_user_id(
     session: T_Session,
-    user_id: int = Path(..., title='id do usuario'),
+    user_id: int = Path(..., ge = 1, title='id do usuario'),
     page: int = 1,
     page_size: int = 10,
 ):
@@ -240,7 +241,7 @@ def get_role_by_user_id(
     return db_rows
 
 
-@router.post('/user-role/', response_model=UserRolesOut)
+@router.post('/user-role', response_model=UserRolesOut)
 def create_role_user(session: T_Session, role_user: UserRolesIn):
     db_role_user = session.scalar(
         select(UserRoles).where(
@@ -263,3 +264,19 @@ def create_role_user(session: T_Session, role_user: UserRolesIn):
     session.commit()
     session.refresh(db_role_user)
     return db_role_user
+
+
+@router.delete('/user-role/', response_model=Message)
+def delete_role_user_by_id(user_role_id: int, session: T_Session):
+    db_row = session.get(UserRoles, user_role_id)
+
+    if db_row is None:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND,
+            detail='User role not found.',
+        )
+
+    session.delete(db_row)
+    session.commit()
+
+    return {'message': 'User role deletado'}

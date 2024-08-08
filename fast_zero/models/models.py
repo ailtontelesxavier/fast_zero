@@ -59,6 +59,8 @@ class UserRoles(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
     role_id: Mapped[int] = mapped_column(ForeignKey('roles.id'))
 
+    role = relationship('Role', backref='UserRoles')
+
     @classmethod
     def get_role_by_user_id(
         cls,
@@ -76,12 +78,11 @@ class UserRoles(Base):
             select(func.count()).select_from(subquery)
         )
 
-        rows = (
-            session.query(subquery)
-            .order_by(cls.id)
-            .offset(skip)
-            .limit(limit)
-            .all()
+        #rows = session.query(subquery).order_by(cls.role_id).offset(skip).limit(limit).all()
+        rows = session.scalars(
+            select(cls).where(
+                (cls.user_id == user_id)
+            ).order_by(cls.role_id).offset(skip).limit(limit)
         )
 
         return {

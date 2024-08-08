@@ -3,6 +3,7 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict, EmailStr
 
 from fast_zero.models.models import TodoState
+from fast_zero.schemas.permissioes_schema import RolePublic
 
 
 class Message(BaseModel):
@@ -51,6 +52,7 @@ class UserRolesIn(BaseModel):
 
 class UserRolesOut(UserRolesIn):
     id: int
+    role: RolePublic
 
 
 class UserRolesList(BaseModel):
