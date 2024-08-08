@@ -8,7 +8,6 @@ from sqlalchemy.orm import Session
 from fast_zero.core.database import get_session
 from fast_zero.models.models import Module, Permission
 from fast_zero.schemas.permissioes_schema import (
-    ModulePublic,
     PermissionListSchema,
     PermissionPublic,
     PermissionSchema,
@@ -140,6 +139,7 @@ def create_permission(permission: PermissionSchema, session: T_Session):
         )
 
     db_permission = Permission(
+        id=None,
         name=permission.name,
         description=permission.description,
         module_id=permission.module_id,

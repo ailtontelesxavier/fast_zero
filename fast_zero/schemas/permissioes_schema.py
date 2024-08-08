@@ -2,16 +2,12 @@ from pydantic import BaseModel
 
 
 class ModuleSchema(BaseModel):
-    title: str
-
-
-class ModulePublic(BaseModel):
     id: int
     title: str
 
 
 class ModuleListSchema(BaseModel):
-    modules: list[ModulePublic]
+    modules: list[ModuleSchema]
     total_records: int
 
 
@@ -55,7 +51,7 @@ class PermissionUpdateSchema(BaseModel):
 
 class PermissionPublic(PermissionSchema):
     id: int
-    module: ModulePublic
+    module: ModuleSchema
 
 
 class PermissionListSchema(BaseModel):

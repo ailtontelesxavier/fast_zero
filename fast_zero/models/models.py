@@ -1,19 +1,15 @@
 from datetime import datetime
 from enum import Enum
 
-from sqlalchemy import BigInteger
-from sqlalchemy import ForeignKey, UniqueConstraint, func, select
+from sqlalchemy import BigInteger, ForeignKey, UniqueConstraint, func, select
 from sqlalchemy.orm import (
     Mapped,
-    DeclarativeBase,
     Session,
     mapped_column,
     registry,
     relationship,
     validates,
 )
-
-
 
 table_registry = registry()
 
@@ -28,7 +24,7 @@ class Base:
         row = session.get(cls, cls.id)
         session.delete(row)
         session.commit()
-        return {'message': F'<{row}> deleted'}
+        return {'message': f'<{row}> deleted'}
 
 
 class TodoState(str, Enum):
@@ -49,7 +45,7 @@ class RolePermissions(Base):
         ),
     )
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, init=False, primary_key=True)
     role_id: Mapped[int] = mapped_column(ForeignKey('roles.id'))
     permission_id: Mapped[int] = mapped_column(ForeignKey('permissions.id'))
 
@@ -59,7 +55,7 @@ class RolePermissions(Base):
 class UserRoles(Base):
     __tablename__ = 'user_roles'
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, init=False, primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
     role_id: Mapped[int] = mapped_column(ForeignKey('roles.id'))
 
@@ -74,9 +70,7 @@ class UserRoles(Base):
         skip = (page - 1) * page_size
         limit = page_size
 
-        subquery = (
-            select(cls).where(cls.user_id == user_id).subquery()
-        )
+        subquery = select(cls).where(cls.user_id == user_id).subquery()
 
         total_records = session.scalar(
             select(func.count()).select_from(subquery)
@@ -100,8 +94,8 @@ class UserRoles(Base):
 class User(Base):
     __tablename__ = 'users'
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
-    username: Mapped[str] = mapped_column(unique=True)
+    id: Mapped[int] = mapped_column(BigInteger, init=False, primary_key=True)
+    username: Mapped[str] = mapped_column(unique=True, index=True)
     password: Mapped[str]
     email: Mapped[str] = mapped_column(unique=True)
     is_active: Mapped[bool] = mapped_column(default=True)
@@ -120,7 +114,6 @@ class User(Base):
 
     def __repr__(self):
         return f'<User {self.username} - {self.email} >'
-
 
     @validates('username')
     def validate_username(self, key, value):  # noqa: PLR6301
@@ -171,7 +164,7 @@ class User(Base):
 class Role(Base):
     __tablename__ = 'roles'
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, init=False, primary_key=True)
     name: Mapped[str] = mapped_column(unique=True, index=True)
     permissions: Mapped[list['Permission']] = relationship(
         'Permission',
@@ -191,7 +184,7 @@ class Permission(Base):
         UniqueConstraint('name', 'module_id', name='uix_name_modules'),
     )
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, init=False, primary_key=True)
     name: Mapped[str]
     description: Mapped[str] = mapped_column(nullable=True)
     module_id: Mapped[int] = mapped_column(ForeignKey('module.id'))
@@ -224,7 +217,7 @@ class Permission(Base):
 class Module(Base):
     __tablename__ = 'module'
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, init=False, primary_key=True)
     title: Mapped[str]
     permissions: Mapped[list['Permission']] = relationship(
         'Permission', back_populates='module'
@@ -233,11 +226,12 @@ class Module(Base):
     def __repr__(self):
         return f'<Module {self.title}>'
 
+
 @table_registry.mapped_as_dataclass
 class Todo(Base):
     __tablename__ = 'todos'
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, init=False, primary_key=True)
     title: Mapped[str]
     description: Mapped[str]
     state: Mapped[TodoState]

@@ -9,7 +9,6 @@ from fast_zero.core.database import get_session
 from fast_zero.models.models import Module
 from fast_zero.schemas.permissioes_schema import (
     ModuleListSchema,
-    ModulePublic,
     ModuleSchema,
 )
 from fast_zero.schemas.schemas import Message
@@ -60,7 +59,7 @@ def get_modules_by_partial_title(
     }
 
 
-@router.get('/module/{module_id}', response_model=ModulePublic)
+@router.get('/module/{module_id}', response_model=ModuleSchema)
 def read_module_by_id(module_id: int, session: T_Session):
     db_module = session.get(Module, module_id)
 
@@ -74,7 +73,8 @@ def read_module_by_id(module_id: int, session: T_Session):
 
 
 @router.post(
-    '/module', status_code=HTTPStatus.CREATED, response_model=ModulePublic
+    '/module', status_code=HTTPStatus.CREATED, response_model=ModuleSchema,
+    response_model_exclude={'id'}
 )
 def create_module(module: ModuleSchema, session: T_Session):
     db_module = session.scalar(
@@ -97,9 +97,9 @@ def create_module(module: ModuleSchema, session: T_Session):
     return db_module
 
 
-@router.put('/module/{module_id}', response_model=ModulePublic)
+@router.put('/module/{module_id}', response_model=ModuleSchema)
 def update_module_by_id(
-    module_id: int, module: ModulePublic, session: T_Session
+    module_id: int, module: ModuleSchema, session: T_Session
 ):
     db_module = session.get(Module, module_id)
 

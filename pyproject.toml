@@ -16,6 +16,7 @@ pyjwt = "^2.8.0"
 pwdlib = {extras = ["argon2"], version = "^0.2.0"}
 python-multipart = "^0.0.9"
 psycopg = {extras = ["binary"], version = "^3.2.1"}
+email-validator = "^2.2.0"
 
 
 [tool.poetry.group.dev.dependencies]
