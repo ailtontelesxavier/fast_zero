@@ -44,17 +44,17 @@ class UserList(BaseModel):
     page_size: int
 
 
-class UserRolesSchema(BaseModel):
+class UserRolesIn(BaseModel):
     user_id: int
     role_id: int
 
 
-class UserRolesPublic(UserRolesSchema):
+class UserRolesOut(BaseModel):
     id: int
 
 
 class UserRolesList(BaseModel):
-    rows: list[UserRolesPublic]
+    rows: list[UserRolesOut]
     total_records: int
 
 

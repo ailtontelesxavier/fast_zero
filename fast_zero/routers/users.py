@@ -18,6 +18,8 @@ from fast_zero.schemas.schemas import (
     UserList,
     UserPasswordUpdate,
     UserPublic,
+    UserRolesIn,
+    UserRolesOut,
     UserSchema,
 )
 
@@ -225,14 +227,39 @@ def get_role_by_user_id(
     page_size: int = 10,
 ):
     row = session.get(User, user_id)
-    user = session.query(User).filter_by(id=user_id).one_or_none()
+    # user = session.query(User).filter_by(id=user_id).one_or_none()
 
     if row is None:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND, detail='User not found.'
         )
 
-    db_rows = user.roles.order_by(UserRoles.id.desc()).limit(10).all()
+    # db_rows = user.roles.order_by(UserRoles.id.desc()).limit(10).all()
     db_rows = UserRoles.get_role_by_user_id(session, user_id, page, page_size)
 
     return db_rows
+
+
+@router.post('/user-role/', response_model=UserRolesOut)
+def create_role_user(session: T_Session, role_user: UserRolesIn):
+    db_role_user = session.scalar(
+        select(UserRoles).where(
+            (UserRoles.user_id == role_user.user_id)
+            & (UserRoles.role_id == role_user.role_id)
+        )
+    )
+    if db_role_user:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail='Role user already registered',
+        )
+
+    db_role_user = UserRoles(
+        user_id=role_user.user_id,
+        role_id=role_user.role_id,
+    )
+
+    session.add(db_role_user)
+    session.commit()
+    session.refresh(db_role_user)
+    return db_role_user
