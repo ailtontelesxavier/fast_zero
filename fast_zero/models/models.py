@@ -218,7 +218,7 @@ class Module(Base):
     __tablename__ = 'module'
 
     id: Mapped[int] = mapped_column(BigInteger, init=False, primary_key=True)
-    title: Mapped[str]
+    title: Mapped[str] = mapped_column(unique=True)
     permissions: Mapped[list['Permission']] = relationship(
         'Permission', back_populates='module'
     )
