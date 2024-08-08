@@ -8,8 +8,9 @@ from sqlalchemy.orm import Session
 from fast_zero.core.database import get_session
 from fast_zero.models.models import Module
 from fast_zero.schemas.permissioes_schema import (
+    ModuleInShema,
     ModuleListSchema,
-    ModuleSchema,
+    ModuleOutSchema,
 )
 from fast_zero.schemas.schemas import Message
 
@@ -59,7 +60,7 @@ def get_modules_by_partial_title(
     }
 
 
-@router.get('/module/{module_id}', response_model=ModuleSchema)
+@router.get('/module/{module_id}', response_model=ModuleOutSchema)
 def read_module_by_id(module_id: int, session: T_Session):
     db_module = session.get(Module, module_id)
 
@@ -73,10 +74,9 @@ def read_module_by_id(module_id: int, session: T_Session):
 
 
 @router.post(
-    '/module', status_code=HTTPStatus.CREATED, response_model=ModuleSchema,
-    response_model_exclude={'id'}
+    '/module', status_code=HTTPStatus.CREATED, response_model=ModuleOutSchema
 )
-def create_module(module: ModuleSchema, session: T_Session):
+def create_module(module: ModuleInShema, session: T_Session):
     db_module = session.scalar(
         select(Module).where(Module.title == module.title)
     )
@@ -97,9 +97,9 @@ def create_module(module: ModuleSchema, session: T_Session):
     return db_module
 
 
-@router.put('/module/{module_id}', response_model=ModuleSchema)
+@router.put('/module/{module_id}', response_model=ModuleOutSchema)
 def update_module_by_id(
-    module_id: int, module: ModuleSchema, session: T_Session
+    module_id: int, module: ModuleOutSchema, session: T_Session
 ):
     db_module = session.get(Module, module_id)
 
