@@ -49,7 +49,7 @@ class UserRolesIn(BaseModel):
     role_id: int
 
 
-class UserRolesOut(BaseModel):
+class UserRolesOut(UserRolesIn):
     id: int
 
 
