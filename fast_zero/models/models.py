@@ -78,11 +78,12 @@ class UserRoles(Base):
             select(func.count()).select_from(subquery)
         )
 
-        #rows = session.query(subquery).order_by(cls.role_id).offset(skip).limit(limit).all()
         rows = session.scalars(
-            select(cls).where(
-                (cls.user_id == user_id)
-            ).order_by(cls.role_id).offset(skip).limit(limit)
+            select(cls)
+            .where((cls.user_id == user_id))
+            .order_by(cls.role_id)
+            .offset(skip)
+            .limit(limit)
         )
 
         return {

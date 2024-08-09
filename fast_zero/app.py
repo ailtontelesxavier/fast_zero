@@ -1,8 +1,12 @@
+from contextlib import asynccontextmanager
 from http import HTTPStatus
+from typing import Annotated
 
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.orm import Session
 
+from fast_zero.core.database import get_session
 from fast_zero.routers import (
     auth,
     permission_role_permission,
@@ -14,7 +18,20 @@ from fast_zero.routers import (
 )
 from fast_zero.schemas.schemas import Message
 
-app = FastAPI()
+T_Session = Annotated[Session, Depends(get_session)]
+resource = {}
+
+
+@asynccontextmanager
+async def app_lifespan(app: FastAPI):
+    print('init lifespan')
+    resource['msg'] = "Hello, it's beautiful day!!"
+    yield
+    resource.clear()
+    print('clean up lifespan')
+
+
+app = FastAPI(lifespan=app_lifespan)
 
 origins = [
     'http://localhost',
@@ -43,3 +60,9 @@ app.include_router(todos.router)
 @app.get('/', status_code=HTTPStatus.OK, response_model=Message)
 def read_root():
     return {'message': 'Ola Mundo!'}
+
+
+@app.on_event('startup')
+def startup_event(
+    session: T_Session,
+): ...

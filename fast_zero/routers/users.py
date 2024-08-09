@@ -223,7 +223,7 @@ def delete_user(
 @router.get('/user-role/{user_id}', response_model=UserRolesList)
 def get_role_by_user_id(
     session: T_Session,
-    user_id: int = Path(..., ge = 1, title='id do usuario'),
+    user_id: int = Path(..., ge=1, title='id do usuario'),
     page: int = 1,
     page_size: int = 10,
 ):
