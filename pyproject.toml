@@ -17,6 +17,9 @@ pwdlib = {extras = ["argon2"], version = "^0.2.0"}
 python-multipart = "^0.0.9"
 psycopg = {extras = ["binary"], version = "^3.2.1"}
 email-validator = "^2.2.0"
+pyotp = "^2.9.0"
+qrcode = "^7.4.2"
+pytz = "^2024.1"
 
 
 [tool.poetry.group.dev.dependencies]

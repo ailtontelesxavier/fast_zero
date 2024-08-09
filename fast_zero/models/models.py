@@ -1,6 +1,12 @@
 from datetime import datetime
 from enum import Enum
 
+import pyotp
+from io import BytesIO
+import qrcode
+import pytz
+from datetime import datetime, timedelta
+
 from sqlalchemy import BigInteger, ForeignKey, UniqueConstraint, func, select
 from sqlalchemy.orm import (
     Mapped,
@@ -108,6 +114,12 @@ class User(Base):
         init=False, server_default=func.now(), onupdate=func.now()
     )
 
+    full_name: Mapped[str] = mapped_column(unique=True)
+    otp_base32: Mapped[str] = mapped_column(nullable=True)
+    otp_auth_url: Mapped[str] = mapped_column(nullable=True)
+    otp_created_at: Mapped[datetime] = mapped_column(default=func.now())
+    login_otp_used: Mapped[bool] = mapped_column(default=False)
+
     todos: Mapped[list['Todo']] = relationship(
         init=False, back_populates='user', cascade='all, delete-orphan'
     )
@@ -122,6 +134,34 @@ class User(Base):
         if value is None or not value:
             raise ValueError('Username não pode ser vazio')
         return value
+
+
+    def save(self, session):
+        if not self.otp_base32:
+            self.otp_base32 = pyotp.random_base32()
+        if not self.otp_auth_url:
+            self.otp_auth_url = pyotp.TOTP(self.otp_base32).provisioning_uri(
+                name=self.full_name.lower(), issuer_name="Interno"
+            )
+            stream = BytesIO()
+            image = qrcode.make(f"{self.otp_auth_url}")
+            image.save(stream)
+            self.qr_code = stream.getvalue()
+
+        session.add(self)
+        session.commit()
+
+    def is_valid_otp(self, otp: str, time_zone: str = "UTC") -> bool:
+        lifespan_in_seconds = 30
+        tz = pytz.timezone(time_zone)
+        now = datetime.now(tz)
+        time_diff = now - self.otp_created_at.replace(tzinfo=tz)
+        if time_diff.total_seconds() >= lifespan_in_seconds or self.login_otp_used:
+            return False
+
+        totp = pyotp.TOTP(self.otp_base32)
+        return totp.verify(otp)
+    
 
     @classmethod
     def get_by_username(cls, session: Session, username: str):

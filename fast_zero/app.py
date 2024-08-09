@@ -2,11 +2,12 @@ from contextlib import asynccontextmanager
 from http import HTTPStatus
 from typing import Annotated
 
-from fastapi import Depends, FastAPI
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.orm import Session
+from sqlalchemy import select
 
 from fast_zero.core.database import get_session
+from fast_zero.models.models import Module
 from fast_zero.routers import (
     auth,
     permission_role_permission,
@@ -16,9 +17,9 @@ from fast_zero.routers import (
     todos,
     users,
 )
+from fast_zero.schemas.permissioes_schema import ModuleInShema
 from fast_zero.schemas.schemas import Message
 
-T_Session = Annotated[Session, Depends(get_session)]
 resource = {}
 
 
@@ -61,8 +62,3 @@ app.include_router(todos.router)
 def read_root():
     return {'message': 'Ola Mundo!'}
 
-
-@app.on_event('startup')
-def startup_event(
-    session: T_Session,
-): ...

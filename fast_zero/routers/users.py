@@ -29,7 +29,7 @@ T_Session = Annotated[Session, Depends(get_session)]
 
 
 @router.post('/', status_code=HTTPStatus.CREATED, response_model=UserPublic)
-def create_user(user: UserSchema, session: T_Session):
+async def create_user(user: UserSchema, session: T_Session):
     db_user = session.scalar(
         select(User).where(
             (User.email == user.email) | (User.username == user.username)
@@ -60,7 +60,7 @@ def create_user(user: UserSchema, session: T_Session):
 
 
 @router.get('/', response_model=UserList)
-def read_users(session: T_Session, page: int = 1, page_size: int = 10):
+async def read_users(session: T_Session, page: int = 1, page_size: int = 10):
     skip = (page - 1) * page_size
     limit = page_size
 
@@ -77,7 +77,7 @@ def read_users(session: T_Session, page: int = 1, page_size: int = 10):
 
 
 @router.get('/user/{username}', response_model=UserFull)
-def get_user_by_username(
+async def get_user_by_username(
     session: T_Session,
     username: str = Path(..., title='nome de usuario'),
 ):
@@ -91,7 +91,7 @@ def get_user_by_username(
 
 
 @router.get('/user-like/{username}', response_model=ListUserFull)
-def get_user_like_by_username(
+async def get_user_like_by_username(
     session: T_Session,
     username: str = Path(..., title='nome de usuario'),
     page: int = 1,
@@ -103,7 +103,7 @@ def get_user_like_by_username(
 
 
 @router.get('/{user_id}', response_model=UserFull)
-def get_user_by_id(
+async def get_user_by_id(
     session: T_Session,
     user_id: int = Path(..., title='The ID of the user to retrieve'),
 ):
@@ -117,7 +117,7 @@ def get_user_by_id(
 
 
 @router.put('/{user_id}', response_model=UserPublic)
-def update_user(
+async def update_user(
     user_id: int,
     user: UserSchema,
     session: T_Session,
@@ -138,7 +138,7 @@ def update_user(
 
 
 @router.put('/update-password/{user_id}', response_model=UserPublic)
-def update_user_password(
+async def update_user_password(
     session: T_Session,
     user_id: int,
     password: UserPasswordUpdate = Body(...),
@@ -158,7 +158,7 @@ def update_user_password(
 
 
 @router.put('/update/{user_id}', response_model=UserFull)
-def update_user_by_id(
+async def update_user_by_id(
     user_id: int,
     user: UserPublic,
     session: T_Session,
@@ -204,7 +204,7 @@ def update_user_by_id(
 
 
 @router.delete('/{user_id}', response_model=Message)
-def delete_user(
+async def delete_user(
     user_id: int,
     session: T_Session,
     current_user: User = Depends(get_current_user),
@@ -221,7 +221,7 @@ def delete_user(
 
 
 @router.get('/user-role/{user_id}', response_model=UserRolesList)
-def get_role_by_user_id(
+async def get_role_by_user_id(
     session: T_Session,
     user_id: int = Path(..., ge=1, title='id do usuario'),
     page: int = 1,
@@ -242,7 +242,7 @@ def get_role_by_user_id(
 
 
 @router.post('/user-role', response_model=UserRolesOut)
-def create_role_user(session: T_Session, role_user: UserRolesIn):
+async def create_role_user(session: T_Session, role_user: UserRolesIn):
     db_role_user = session.scalar(
         select(UserRoles).where(
             (UserRoles.user_id == role_user.user_id)
@@ -267,7 +267,7 @@ def create_role_user(session: T_Session, role_user: UserRolesIn):
 
 
 @router.delete('/user-role/', response_model=Message)
-def delete_role_user_by_id(user_role_id: int, session: T_Session):
+async def delete_role_user_by_id(user_role_id: int, session: T_Session):
     db_row = session.get(UserRoles, user_role_id)
 
     if db_row is None:
