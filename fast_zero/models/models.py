@@ -1,12 +1,10 @@
 from datetime import datetime
 from enum import Enum
+from io import BytesIO
 
 import pyotp
-from io import BytesIO
-import qrcode
 import pytz
-from datetime import datetime, timedelta
-
+import qrcode
 from sqlalchemy import BigInteger, ForeignKey, UniqueConstraint, func, select
 from sqlalchemy.orm import (
     Mapped,
@@ -135,33 +133,33 @@ class User(Base):
             raise ValueError('Username não pode ser vazio')
         return value
 
-
     def save(self, session):
         if not self.otp_base32:
             self.otp_base32 = pyotp.random_base32()
         if not self.otp_auth_url:
             self.otp_auth_url = pyotp.TOTP(self.otp_base32).provisioning_uri(
-                name=self.full_name.lower(), issuer_name="Interno"
+                name=self.full_name.lower(), issuer_name='Interno'
             )
             stream = BytesIO()
-            image = qrcode.make(f"{self.otp_auth_url}")
+            image = qrcode.make(f'{self.otp_auth_url}')
             image.save(stream)
             self.qr_code = stream.getvalue()
 
         session.add(self)
         session.commit()
 
-    def is_valid_otp(self, otp: str, time_zone: str = "UTC") -> bool:
+    def is_valid_otp(self, otp: str, time_zone: str = 'UTC') -> bool:
         lifespan_in_seconds = 30
         tz = pytz.timezone(time_zone)
         now = datetime.now(tz)
         time_diff = now - self.otp_created_at.replace(tzinfo=tz)
-        if time_diff.total_seconds() >= lifespan_in_seconds or self.login_otp_used:
+        if (
+            time_diff.total_seconds() >= lifespan_in_seconds
+        ) or self.login_otp_used:
             return False
 
         totp = pyotp.TOTP(self.otp_base32)
         return totp.verify(otp)
-    
 
     @classmethod
     def get_by_username(cls, session: Session, username: str):
