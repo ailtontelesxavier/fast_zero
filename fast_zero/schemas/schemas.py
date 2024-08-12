@@ -14,13 +14,20 @@ class UserSchema(BaseModel):
     username: str
     email: EmailStr
     password: str
+    full_name: str
+    is_active: bool
+    is_staff: bool
+    is_superuser: bool
 
 
 class UserPublic(BaseModel):
     id: int
     username: str
     email: EmailStr
+    full_name: str
     is_active: bool
+    is_staff: bool
+    is_superuser: bool
     model_config = ConfigDict(from_attributes=True)
 
 

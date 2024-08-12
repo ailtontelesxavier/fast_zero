@@ -104,7 +104,11 @@ class User(Base):
     username: Mapped[str] = mapped_column(unique=True, index=True)
     password: Mapped[str]
     email: Mapped[str] = mapped_column(unique=True)
+    full_name: Mapped[str]
+    otp_base32: Mapped[str] = mapped_column(nullable=True)
     is_active: Mapped[bool] = mapped_column(default=True)
+    is_staff: Mapped[bool] = mapped_column(default=True)
+    is_superuser: Mapped[bool] = mapped_column(default=False)
     created_at: Mapped[datetime] = mapped_column(
         init=False, server_default=func.now()
     )
@@ -112,9 +116,6 @@ class User(Base):
         init=False, server_default=func.now(), onupdate=func.now()
     )
 
-    full_name: Mapped[str] = mapped_column(unique=True)
-    otp_base32: Mapped[str] = mapped_column(nullable=True)
-    otp_auth_url: Mapped[str] = mapped_column(nullable=True)
     otp_created_at: Mapped[datetime] = mapped_column(default=func.now())
     login_otp_used: Mapped[bool] = mapped_column(default=False)
 
@@ -133,33 +134,46 @@ class User(Base):
             raise ValueError('Username não pode ser vazio')
         return value
 
-    def save(self, session):
-        if not self.otp_base32:
-            self.otp_base32 = pyotp.random_base32()
-        if not self.otp_auth_url:
-            self.otp_auth_url = pyotp.TOTP(self.otp_base32).provisioning_uri(
+    @validates('full_name')
+    def validate_username(self, key, value):  # noqa: PLR6301
+        if value is None or not value:
+            raise ValueError('full_name não pode ser vazio')
+        return value
+
+    @classmethod
+    def create_otp_base32(cls):
+       return pyotp.random_base32()
+    
+    def get_otp_url(self):
+        return pyotp.TOTP(self.otp_base32).provisioning_uri(
                 name=self.full_name.lower(), issuer_name='Interno'
             )
-            stream = BytesIO()
-            image = qrcode.make(f'{self.otp_auth_url}')
-            image.save(stream)
-            self.qr_code = stream.getvalue()
+    
+    def get_qr_code(self):
+        stream = BytesIO()
+        image = qrcode.make(f'{self.otp_auth_url}')
+        image.save(stream)
+        self.qr_code = stream.getvalue()
 
-        session.add(self)
-        session.commit()
+        return self.qr_code
 
-    def is_valid_otp(self, otp: str, time_zone: str = 'UTC') -> bool:
+
+
+    def is_valid_otp(self, otp: str) -> bool:
         lifespan_in_seconds = 30
-        tz = pytz.timezone(time_zone)
+
+        TIME_ZONE = 'America/Sao_Paulo'
+        tz = pytz.timezone(TIME_ZONE)
+
         now = datetime.now(tz)
         time_diff = now - self.otp_created_at.replace(tzinfo=tz)
-        if (
-            time_diff.total_seconds() >= lifespan_in_seconds
-        ) or self.login_otp_used:
+        time_diff = time_diff.total_seconds()
+        if (time_diff >= lifespan_in_seconds):
             return False
 
         totp = pyotp.TOTP(self.otp_base32)
         return totp.verify(otp)
+
 
     @classmethod
     def get_by_username(cls, session: Session, username: str):
