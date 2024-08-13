@@ -13,6 +13,9 @@ from fast_zero.routers import (
     todos,
     users,
 )
+from fast_zero.juridico import (
+    router_negociacao,
+)
 from fast_zero.schemas.schemas import Message
 
 resource = {}
@@ -51,6 +54,7 @@ app.include_router(permissions_permission.router)
 app.include_router(permission_role_permission.router)
 app.include_router(auth.router)
 app.include_router(todos.router)
+app.include_router(router_negociacao.router)
 
 
 @app.get('/', status_code=HTTPStatus.OK, response_model=Message)

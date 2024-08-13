@@ -1,11 +1,8 @@
+from datetime import datetime
 from http import HTTPStatus
 from typing import Annotated
 
-import pyotp
 import pytz
-import qrcode
-from datetime import datetime, timezone
-
 from fastapi import APIRouter, Body, Depends, HTTPException, Path
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
@@ -62,7 +59,7 @@ async def create_user(user: UserSchema, session: T_Session):
     )
 
     # configura otp
-    totp = pyotp.TOTP(db_user.otp_base32).now()
+    # totp = pyotp.TOTP(db_user.otp_base32).now()
     TIME_ZONE = 'America/Sao_Paulo'
     tz = pytz.timezone(TIME_ZONE)
     db_user.otp_created_at = datetime.now(tz)

@@ -152,8 +152,8 @@ class User(Base):
 
     def get_otp_url(self):
         return pyotp.TOTP(self.otp_base32).provisioning_uri(
-                name=self.full_name.lower(), issuer_name='Interno'
-            )
+            name=self.full_name.lower(), issuer_name='Interno'
+        )
 
     def get_qr_code(self):
         stream = BytesIO()
@@ -172,12 +172,11 @@ class User(Base):
         now = datetime.now(tz)
         time_diff = now - self.otp_created_at.replace(tzinfo=tz)
         time_diff = time_diff.total_seconds()
-        if (time_diff >= lifespan_in_seconds):
+        if time_diff >= lifespan_in_seconds:
             return False
 
         totp = pyotp.TOTP(self.otp_base32)
         return totp.verify(otp)
-
 
     @classmethod
     def get_by_username(cls, session: Session, username: str):
