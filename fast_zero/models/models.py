@@ -5,7 +5,14 @@ from io import BytesIO
 import pyotp
 import pytz
 import qrcode
-from sqlalchemy import BigInteger, ForeignKey, UniqueConstraint, func, select
+from sqlalchemy import (
+    BigInteger,
+    ForeignKey,
+    UniqueConstraint,
+    event,
+    func,
+    select,
+)
 from sqlalchemy.orm import (
     Mapped,
     Session,
@@ -115,7 +122,6 @@ class User(Base):
     updated_at: Mapped[datetime] = mapped_column(
         init=False, server_default=func.now(), onupdate=func.now()
     )
-
     otp_created_at: Mapped[datetime] = mapped_column(default=func.now())
     login_otp_used: Mapped[bool] = mapped_column(default=False)
 
@@ -135,20 +141,20 @@ class User(Base):
         return value
 
     @validates('full_name')
-    def validate_username(self, key, value):  # noqa: PLR6301
+    def validate_full_name(self, key, value):  # noqa: PLR6301
         if value is None or not value:
             raise ValueError('full_name não pode ser vazio')
         return value
 
     @classmethod
     def create_otp_base32(cls):
-       return pyotp.random_base32()
-    
+        return pyotp.random_base32()
+
     def get_otp_url(self):
         return pyotp.TOTP(self.otp_base32).provisioning_uri(
                 name=self.full_name.lower(), issuer_name='Interno'
             )
-    
+
     def get_qr_code(self):
         stream = BytesIO()
         image = qrcode.make(f'{self.otp_auth_url}')
@@ -156,8 +162,6 @@ class User(Base):
         self.qr_code = stream.getvalue()
 
         return self.qr_code
-
-
 
     def is_valid_otp(self, otp: str) -> bool:
         lifespan_in_seconds = 30
@@ -212,6 +216,32 @@ class User(Base):
             'rows': rows,
             'total_records': total_records,
         }
+
+
+# Evento para before_insert
+@event.listens_for(User, 'before_insert')
+def before_insert(mapper, connection, target):
+    # if not target.full_name:
+    #     target.full_name = "Usuário desconhecido"
+    print('antes de insert')
+    if not target.otp_base32:
+        target.otp_base32 = pyotp.random_base32()
+
+    if not target.otp_auth_url:
+        target.otp_auth_url = pyotp.TOTP(target.otp_base32).provisioning_uri(
+            name=target.full_name.lower(), issuer_name='Codigo'
+        )
+        stream = BytesIO()
+        image = qrcode.make(f'{target.otp_auth_url}')
+        image.save(stream)
+        target.qr_code = stream.getvalue()
+
+
+# Evento para before_update
+@event.listens_for(User, 'before_update')
+def before_update(mapper, connection, target):
+    # target.updated_at = datetime.utcnow()
+    pass
 
 
 @table_registry.mapped_as_dataclass

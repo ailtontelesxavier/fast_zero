@@ -12,6 +12,7 @@ class Message(BaseModel):
 
 class UserSchema(BaseModel):
     username: str
+    full_name: str
     email: EmailStr
     password: str
     full_name: str
@@ -23,6 +24,7 @@ class UserSchema(BaseModel):
 class UserPublic(BaseModel):
     id: int
     username: str
+    full_name: str
     email: EmailStr
     full_name: str
     is_active: bool
