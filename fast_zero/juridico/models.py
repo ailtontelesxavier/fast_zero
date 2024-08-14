@@ -1,5 +1,4 @@
 from datetime import timedelta
-from enum import Enum
 
 from dateutil.relativedelta import relativedelta
 from sqlalchemy import (
@@ -15,7 +14,6 @@ from sqlalchemy.orm import (
     Session,
     mapped_column,
     registry,
-    relationship,
 )
 
 from fast_zero.models.models import Base, event
@@ -159,9 +157,9 @@ class ParcelamentoNegociacao(Base):
         ForeignKey('negociacao_credito.id', ondelete='CASCADE'),
         nullable=False,
     )
-#    negociacao: Mapped['NegociacaoCredito'] = relationship(
-#        'NegociacaoCredito', back_populates='parcelamento_negociacao'
-#    )
+    #    negociacao: Mapped['NegociacaoCredito'] = relationship(
+    #        'NegociacaoCredito', back_populates='parcelamento_negociacao'
+    #    )
 
     data: Mapped[Date] = mapped_column(Date, nullable=False)
     val_parcela: Mapped[DECIMAL] = mapped_column(
