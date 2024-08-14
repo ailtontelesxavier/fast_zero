@@ -3,9 +3,8 @@ from enum import Enum
 
 from dateutil.relativedelta import relativedelta
 from sqlalchemy import (
-    Date,
     DECIMAL,
-    Column,
+    Date,
     ForeignKey,
     Integer,
     String,
@@ -19,10 +18,10 @@ from sqlalchemy.orm import (
     relationship,
 )
 
-from fast_zero.models.models import Base
-from fast_zero.models.models import event
+from fast_zero.models.models import Base, event
 
 table_registry = registry()
+
 
 @table_registry.mapped_as_dataclass
 class NegociacaoCredito(Base):
@@ -34,7 +33,7 @@ class NegociacaoCredito(Base):
             'contrato',
             name='unique_processo_executado_contrato',
         ),
-        #{'order_by': 'id DESC'},
+        # {'order_by': 'id DESC'},
     )
 
     id: Mapped[int] = mapped_column(init=False, primary_key=True)
@@ -45,7 +44,7 @@ class NegociacaoCredito(Base):
     val_desconto: Mapped[DECIMAL] = mapped_column(
         DECIMAL(10, 2), nullable=True
     )
-    val_neg: mapped_column(DECIMAL(10, 2), nullable=False)
+    val_neg: Mapped[DECIMAL] = mapped_column(DECIMAL(10, 2), nullable=False)
     data_pri_parc: Mapped[Date] = mapped_column(Date, nullable=True)
     data_ult_parc: Mapped[Date] = mapped_column(Date, nullable=True)
     val_entrada: Mapped[DECIMAL] = mapped_column(DECIMAL(10, 2), nullable=True)
@@ -54,7 +53,7 @@ class NegociacaoCredito(Base):
     data_ult_parc_entr: Mapped[Date] = mapped_column(Date, nullable=True)
     obs_val_neg: Mapped[str] = mapped_column(String(100), nullable=True)
     is_term_ex_jud: Mapped[bool] = mapped_column(default=False)
-    is_hom_ext_jud: Mapped[bool] = mapped_column(default=False)  
+    is_hom_ext_jud: Mapped[bool] = mapped_column(default=False)
     qtd: Mapped[int] = mapped_column(Integer, default=1)
     taxa_mes: Mapped[DECIMAL] = mapped_column(DECIMAL(10, 2), default=0.00)
     val_parc: Mapped[DECIMAL] = mapped_column(DECIMAL(10, 2), default=0.00)
@@ -152,11 +151,12 @@ class TypoParcelamento(str, Enum):
     Contrato = 1
     Entrada = 2
 
+
 @table_registry.mapped_as_dataclass
 class ParcelamentoNegociacao(Base):
     __tablename__ = 'parcelamento_negociacao'
-    #__table_args__ = ({'order_by': ['numero_parcela', 'data', 'type']},)
-    
+    # __table_args__ = ({'order_by': ['numero_parcela', 'data', 'type']},)
+
     id: Mapped[int] = mapped_column(init=False, primary_key=True)
 
     negociacao_id: Mapped[int] = mapped_column(

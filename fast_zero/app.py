@@ -4,6 +4,9 @@ from http import HTTPStatus
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from fast_zero.juridico import (
+    router_negociacao,
+)
 from fast_zero.routers import (
     auth,
     permission_role_permission,
@@ -12,9 +15,6 @@ from fast_zero.routers import (
     permissions_role,
     todos,
     users,
-)
-from fast_zero.juridico import (
-    router_negociacao,
 )
 from fast_zero.schemas.schemas import Message
 

@@ -11,7 +11,7 @@ from alembic import context
 from fast_zero.core.settings import Settings
 
 from logging.config import fileConfig
-from sqlalchemy import engine_from_config
+from sqlalchemy import engine_from_config, MetaData
 from sqlalchemy import pool
 from alembic import context
 import os
@@ -19,13 +19,13 @@ import importlib
 
 # Atualize aqui para incluir o caminho onde seus arquivos models.py estão localizados
 MODEL_PATHS = [
-    'fast_zero.models',  # Por exemplo, se os arquivos estão em fast_zero/models
+    'fast_zero.models.models',  # Por exemplo, se os arquivos estão em fast_zero/models
     'fast_zero.juridico.models',  # Adicione outros caminhos conforme necessário
 ]
 
+
 # Função para importar todos os módulos de models e coletar a metadata
 def collect_metadata():
-    from sqlalchemy import MetaData
     metadata = MetaData()
 
     for path in MODEL_PATHS:
@@ -34,7 +34,8 @@ def collect_metadata():
             module = importlib.import_module(path)
             # Adicionar a metadata
             if hasattr(module, 'table_registry'):
-                metadata = module.table_registry.metadata
+                for table in module.table_registry.metadata.tables.values():
+                    table.tometadata(metadata)
             else:
                 print(f"Warning: No table_registry found in module {path}")
         except ImportError as e:
