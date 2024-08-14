@@ -159,9 +159,9 @@ class ParcelamentoNegociacao(Base):
         ForeignKey('negociacao_credito.id', ondelete='CASCADE'),
         nullable=False,
     )
-    negociacao: Mapped['NegociacaoCredito'] = relationship(
-        'NegociacaoCredito', back_populates='parcelamentos'
-    )
+#    negociacao: Mapped['NegociacaoCredito'] = relationship(
+#        'NegociacaoCredito', back_populates='parcelamento_negociacao'
+#    )
 
     data: Mapped[Date] = mapped_column(Date, nullable=False)
     val_parcela: Mapped[DECIMAL] = mapped_column(
