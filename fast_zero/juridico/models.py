@@ -170,7 +170,7 @@ class ParcelamentoNegociacao(Base):
     val_pago: Mapped[DECIMAL] = mapped_column(DECIMAL(10, 2), nullable=True)
     obs_val_pago: Mapped[str] = mapped_column(String(100), nullable=True)
     data_pgto: Mapped[Date] = mapped_column(Date, nullable=True)
-    type: Mapped[int] = mapped_column(default=1)
+    type: Mapped[int] = mapped_column(Integer, default=1)
     numero_parcela: Mapped[int] = mapped_column(Integer, default=0)
     is_pg: Mapped[bool] = mapped_column(default=False)
     is_val_juros: Mapped[bool] = mapped_column(default=False)

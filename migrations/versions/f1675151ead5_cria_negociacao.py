@@ -56,7 +56,7 @@ def upgrade() -> None:
     sa.Column('val_pago', sa.DECIMAL(precision=10, scale=2), nullable=True),
     sa.Column('obs_val_pago', sa.String(length=100), nullable=True),
     sa.Column('data_pgto', sa.Date(), nullable=True),
-    sa.Column('type', sa.Enum('Contrato', 'Entrada', name='typoparcelamento'), nullable=False),
+    sa.Column('type', sa.Integer(), default=1),
     sa.Column('numero_parcela', sa.Integer(), nullable=False),
     sa.Column('is_pg', sa.Boolean(), nullable=False),
     sa.Column('is_val_juros', sa.Boolean(), nullable=False),

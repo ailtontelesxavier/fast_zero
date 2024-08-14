@@ -151,5 +151,5 @@ def insertParcela(row):
 
 
 if __name__ == '__main__':
-    # consultaNegociacaoCredito()
+    #consultaNegociacaoCredito()
     consultaParcelas()
