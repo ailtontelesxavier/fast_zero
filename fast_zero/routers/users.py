@@ -56,6 +56,7 @@ async def create_user(user: UserSchema, session: T_Session):
         password=hashed_password,
         full_name=user.full_name,
         otp_base32=User.create_otp_base32(),
+        otp_auth_url=''
     )
 
     # configura otp

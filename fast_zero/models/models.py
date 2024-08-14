@@ -112,6 +112,7 @@ class User(Base):
     password: Mapped[str]
     email: Mapped[str] = mapped_column(unique=True)
     full_name: Mapped[str]
+    otp_auth_url: Mapped[str] = mapped_column(nullable=True)
     otp_base32: Mapped[str] = mapped_column(nullable=True)
     is_active: Mapped[bool] = mapped_column(default=True)
     is_staff: Mapped[bool] = mapped_column(default=True)
