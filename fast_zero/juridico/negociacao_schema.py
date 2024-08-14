@@ -12,9 +12,9 @@ class NegociacaoInSchema(BaseModel):
     val_neg: Decimal
     data_pri_parc: date | None
     data_ult_parc: date | None
-    val_entrada: Decimal
-    qtd_parc_ent: int
-    data_pri_parc_entr: date
+    val_entrada: Decimal | None
+    qtd_parc_ent: int | None
+    data_pri_parc_entr: date | None
     data_ult_parc_entr: date | None
     obs_val_neg: str
     is_term_ex_jud: bool

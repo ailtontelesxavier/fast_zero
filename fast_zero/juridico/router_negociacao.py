@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Optional
 
 from fastapi import APIRouter, Depends
 from sqlalchemy import func, select, desc
@@ -13,17 +13,32 @@ T_Session = Annotated[Session, Depends(get_session)]
 
 
 @router.get('/negociacao', response_model=NegociacaoListSchema)
-def read_negociacao(session: T_Session, page: int=1, page_size: int=10):
+def read_negociacao(
+    session: T_Session, searchTerm: Optional[str] = '', page: int=1, page_size: int=10):
     skip = (page - 1) * page_size
     limit = page_size
     
-    total_records = session.scalar(select(func.count(NegociacaoCredito.id)))
-    
+    # Construir a consulta base
+    query = select(NegociacaoCredito)
+
+    if searchTerm:
+        partial_name = f'%{searchTerm}%'
+        query = query.where(
+            NegociacaoCredito.processo.ilike(partial_name) |
+            NegociacaoCredito.executado.ilike(partial_name) |
+            NegociacaoCredito.contrato.ilike(partial_name)
+        )
+
+    # Obter o total de registros
+    total_records = session.scalar(
+        select(func.count()).select_from(query.subquery())
+    )
+
+    # Obter os registros paginados
     rows = session.scalars(
-        select(NegociacaoCredito)
-        .order_by(NegociacaoCredito.id)
+        query.order_by(desc(NegociacaoCredito.id))
         .offset(skip)
         .limit(limit)
     ).all()
-    
+
     return {'rows': rows, 'total_records': total_records}
