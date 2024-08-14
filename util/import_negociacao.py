@@ -95,5 +95,61 @@ def insertNegociacaoCredito(row):
             raise
 
 
+def consultaParcelas():
+    select_user_sql = "SELECT id, type, data, val_parcela, val_pago,\
+        obs_val_pago, is_pg,is_val_juros, data_pgto,\
+        negociacao_id, numero_parcela\
+        FROM juridico_parcelamentonegociacao;"
+
+    with engine.connect() as connection:
+        # Execute um comando SQL
+        resultado = connection.execute(sa.text(select_user_sql))
+
+        # Imprima os resultados
+        for linha in resultado:
+            #print(linha)
+            insertParcela(linha)
+
+
+def insertParcela(row):
+    # Formate a string SQL para inserção
+    insert_sql = """INSERT INTO parcelamento_negociacao(
+        id, type, data, val_parcela, val_pago, obs_val_pago, is_pg,
+        is_val_juros, data_pgto, negociacao_id, numero_parcela)
+        VALUES (:id, :type, :data, :val_parcela, :val_pago,
+        :obs_val_pago, :is_pg,:is_val_juros, :data_pgto,
+        :negociacao_id, :numero_parcela);
+    """
+
+    # Substitui None por valores apropriados para SQL
+    row = tuple('' if x is None else x for x in row)
+
+    with engine2.connect() as connection:
+        transaction = connection.begin()
+        try:
+            print(row)
+            # Execute o comando SQL com a ligação de parâmetros
+            resultado = connection.execute(sa.text(insert_sql), {
+                'id': row[0],
+                'type': row[1],
+                'data': row[2] if row[2] else None,
+                'val_parcela': row[3],
+                'val_pago': row[4] if row[4] else None,
+                'obs_val_pago': row[5],
+                'is_pg': row[6],
+                'is_val_juros': row[7],
+                'data_pgto': row[8] if row[8] else None,
+                'negociacao_id': row[9],
+                'numero_parcela': row[10]
+            })
+            print(resultado)
+            transaction.commit()
+        except Exception as e:
+            transaction.rollback()
+            print(f"Erro ao inserir negociação de crédito: {e}")
+            raise
+
+
 if __name__ == '__main__':
-    consultaNegociacaoCredito()
+    # consultaNegociacaoCredito()
+    consultaParcelas()

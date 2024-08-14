@@ -147,11 +147,6 @@ def after_insert_negociacao_credito(mapper, connection, target):
         session.close()
 
 
-class TypoParcelamento(str, Enum):
-    Contrato = 1
-    Entrada = 2
-
-
 @table_registry.mapped_as_dataclass
 class ParcelamentoNegociacao(Base):
     __tablename__ = 'parcelamento_negociacao'
@@ -175,7 +170,7 @@ class ParcelamentoNegociacao(Base):
     val_pago: Mapped[DECIMAL] = mapped_column(DECIMAL(10, 2), nullable=True)
     obs_val_pago: Mapped[str] = mapped_column(String(100), nullable=True)
     data_pgto: Mapped[Date] = mapped_column(Date, nullable=True)
-    type: Mapped[TypoParcelamento] = mapped_column(default=1)
+    type: Mapped[int] = mapped_column(default=1)
     numero_parcela: Mapped[int] = mapped_column(Integer, default=0)
     is_pg: Mapped[bool] = mapped_column(default=False)
     is_val_juros: Mapped[bool] = mapped_column(default=False)
