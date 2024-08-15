@@ -1,6 +1,7 @@
+from http import HTTPStatus
 from typing import Annotated, Optional
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import desc, func, select
 from sqlalchemy.orm import Session
 
@@ -8,6 +9,7 @@ from fast_zero.core.database import get_session
 from fast_zero.juridico.models import NegociacaoCredito
 from fast_zero.juridico.negociacao_schema import (
     NegociacaoListSchema,
+    NegociacaoOutSchema,
 )
 
 router = APIRouter(prefix='/juridico', tags=['negociação'])
@@ -46,3 +48,16 @@ def read_negociacao(
     ).all()
 
     return {'rows': rows, 'total_records': total_records}
+
+
+@router.get('/negociacao/{negociacao_id}', response_model=NegociacaoOutSchema)
+def get_negociacao_by_id(session: T_Session, negociacao_id: int):
+    row = session.get(NegociacaoCredito, negociacao_id)
+
+    if row is None:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND,
+            detail='Perfil not found',
+        )
+
+    return row
