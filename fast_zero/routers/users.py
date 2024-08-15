@@ -49,6 +49,8 @@ async def create_user(user: UserSchema, session: T_Session):
         )
 
     hashed_password = get_password_hash(user.password)
+    TIME_ZONE = 'America/Sao_Paulo'
+    tz = pytz.timezone(TIME_ZONE)
 
     db_user = User(
         email=user.email,
@@ -57,13 +59,8 @@ async def create_user(user: UserSchema, session: T_Session):
         full_name=user.full_name,
         otp_base32=User.create_otp_base32(),
         otp_auth_url='',
+        otp_created_at=datetime.now(tz)
     )
-
-    # configura otp
-    # totp = pyotp.TOTP(db_user.otp_base32).now()
-    TIME_ZONE = 'America/Sao_Paulo'
-    tz = pytz.timezone(TIME_ZONE)
-    db_user.otp_created_at = datetime.now(tz)
 
     session.add(db_user)
     session.commit()

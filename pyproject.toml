@@ -20,6 +20,7 @@ email-validator = "^2.2.0"
 pyotp = "^2.9.0"
 qrcode = "^7.4.2"
 pytz = "^2024.1"
+click = "^8.1.7"
 
 
 [tool.poetry.group.dev.dependencies]
