@@ -2,7 +2,6 @@ from datetime import datetime
 
 import click
 import pytz
-from fastapi import Depends
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -12,10 +11,20 @@ from fast_zero.models.models import User
 
 
 @click.command()
-@click.option('--username', prompt=True, help='O nome de usuário para o superusuário.')
-@click.option('--password', prompt=True, hide_input=True, confirmation_prompt=True, help='A senha para o superusuário.')
+@click.option(
+    '--username', prompt=True, help='O nome de usuário para o superusuário.'
+)
+@click.option(
+    '--password',
+    prompt=True,
+    hide_input=True,
+    confirmation_prompt=True,
+    help='A senha para o superusuário.',
+)
 @click.option('--email', prompt=True, help='O email do superusuário.')
-@click.option('--full-name', prompt=True, help='Nome completo do superusuário.')
+@click.option(
+    '--full-name', prompt=True, help='Nome completo do superusuário.'
+)
 def create_superuser(username: str, password: str, email: str, full_name: str):
     """Cria um novo superusuário no banco de dados."""
 
@@ -25,7 +34,7 @@ def create_superuser(username: str, password: str, email: str, full_name: str):
     settings = Settings()
     engine = create_engine(settings.DATABASE_URL)
     session = create_local_session(engine)
-    
+
     print(type(session))
 
     TIME_ZONE = 'America/Sao_Paulo'
@@ -41,7 +50,7 @@ def create_superuser(username: str, password: str, email: str, full_name: str):
             is_staff=True,
             otp_auth_url='',
             otp_base32=User.create_otp_base32(),
-            otp_created_at=datetime.now(tz)
+            otp_created_at=datetime.now(tz),
         )
 
         session.add(user)
@@ -58,6 +67,7 @@ def create_local_session(engine):
     """Cria uma sessão de banco de dados."""
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     return SessionLocal()
+
 
 if __name__ == '__main__':
     create_superuser()

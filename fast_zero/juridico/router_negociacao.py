@@ -6,19 +6,23 @@ from sqlalchemy import desc, func, select
 from sqlalchemy.orm import Session
 
 from fast_zero.core.database import get_session
+from fast_zero.core.security import get_current_user
 from fast_zero.juridico.models import NegociacaoCredito
 from fast_zero.juridico.negociacao_schema import (
     NegociacaoListSchema,
     NegociacaoOutSchema,
 )
+from fast_zero.models.models import User
 
 router = APIRouter(prefix='/juridico', tags=['negociação'])
 T_Session = Annotated[Session, Depends(get_session)]
+T_CurrentUser = Annotated[User, Depends(get_current_user)]
 
 
 @router.get('/negociacao', response_model=NegociacaoListSchema)
 def read_negociacao(
     session: T_Session,
+    user: T_CurrentUser,
     searchTerm: Optional[str] = '',
     page: int = 1,
     page_size: int = 10,
@@ -51,7 +55,9 @@ def read_negociacao(
 
 
 @router.get('/negociacao/{negociacao_id}', response_model=NegociacaoOutSchema)
-def get_negociacao_by_id(session: T_Session, negociacao_id: int):
+def get_negociacao_by_id(
+    session: T_Session, user: T_CurrentUser, negociacao_id: int
+):
     row = session.get(NegociacaoCredito, negociacao_id)
 
     if row is None:
