@@ -67,7 +67,7 @@ async def get_current_user(
         raise credentials_exception
 
     user = session.scalar(
-        select(User).where(User.email == token_data.username)
+        select(User).where(User.username == token_data.username)
     )
 
     if user is None:
