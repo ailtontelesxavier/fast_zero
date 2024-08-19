@@ -37,3 +37,25 @@ class NegociacaoOutSchema(NegociacaoInSchema):
 class NegociacaoListSchema(BaseModel):
     rows: list[NegociacaoOutSchema]
     total_records: int
+
+
+class ParcelamentoInSchema(BaseModel):
+    negociacao_id: int
+    data: date | None
+    val_parcela: Decimal
+    val_pago: Decimal | None
+    obs_val_pago: str
+    data_pgto: date | None
+    type: int
+    numero_parcela: int
+    is_pg: bool
+    is_val_juros: bool
+
+
+class ParcelamentoOurSchema(ParcelamentoInSchema):
+    id: int
+
+
+class ParcelamentoListSchema(BaseModel):
+    rows: list[ParcelamentoOurSchema]
+    total_records: int
