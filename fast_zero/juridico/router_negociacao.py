@@ -88,7 +88,7 @@ def read_parcelmanto_by_negociacao_id(
     )
     
     rows = session.scalars(
-        query.order_by(asc(ParcelamentoNegociacao.data)).offset(skip).limit(limit)
+        query.order_by(asc(ParcelamentoNegociacao.numero_parcela)).offset(skip).limit(limit)
     ).all()
     
     return {'rows': rows, 'total_records': total_records}
