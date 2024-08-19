@@ -82,6 +82,20 @@ def get_current_active_user(current_user: User = Depends(get_current_user)):
     return current_user
 
 
+def verify_token(token: str):
+    try:
+        payload = decode(
+            token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        username: str = payload.get("sub")
+        if username is None:
+            return False
+        return True
+    except ExpiredSignatureError:
+        # raise HTTPException(
+        # status_code=403, detail="Token is invalid or expired")
+        return False
+
+
 def get_current_user_with_roles_and_permissions(
     roles: list[str] = [], permissions: list[str] = []
 ):
