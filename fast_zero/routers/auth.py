@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Annotated, Optional
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
@@ -11,7 +11,6 @@ from fast_zero.core.security import (
     create_access_token,
     get_current_user,
     verify_password,
-    verify_token,
 )
 from fast_zero.models.models import User
 from fast_zero.schemas.schemas import Message, Token
@@ -61,10 +60,10 @@ def refresh_access_token(user: User = Depends(get_current_user)):
     return {'access_token': new_access_token, 'token_type': 'Bearer'}
 
 
-@router.get("/verify-token", status_code=HTTPStatus.OK, response_model=Message)
+@router.get('/verify-token', status_code=HTTPStatus.OK, response_model=Message)
 async def verify_user_token(
     session: T_Session,
     user: T_CurrentUser,
 ):
-    #return verify_token(token=token)
+    # return verify_token(token=token)
     return {'message': 'Ola Mundo!'}

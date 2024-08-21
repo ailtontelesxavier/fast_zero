@@ -1,8 +1,10 @@
 from datetime import timedelta
+from decimal import Decimal
 
 from dateutil.relativedelta import relativedelta
 from sqlalchemy import (
     DECIMAL,
+    BigInteger,
     Date,
     ForeignKey,
     Integer,
@@ -34,18 +36,18 @@ class NegociacaoCredito(Base):
         # {'order_by': 'id DESC'},
     )
 
-    id: Mapped[int] = mapped_column(init=False, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, init=False, primary_key=True)
     processo: Mapped[str] = mapped_column(String(200), nullable=True)
     executado: Mapped[str] = mapped_column(String(200), nullable=False)
     contrato: Mapped[str] = mapped_column(String(100), nullable=True)
-    val_devido: Mapped[DECIMAL] = mapped_column(DECIMAL(10, 2), nullable=False)
-    val_desconto: Mapped[DECIMAL] = mapped_column(
+    val_devido: Mapped[Decimal] = mapped_column(DECIMAL(10, 2), nullable=False)
+    val_desconto: Mapped[Decimal] = mapped_column(
         DECIMAL(10, 2), nullable=True
     )
-    val_neg: Mapped[DECIMAL] = mapped_column(DECIMAL(10, 2), nullable=False)
+    val_neg: Mapped[Decimal] = mapped_column(DECIMAL(10, 2), nullable=False)
     data_pri_parc: Mapped[Date] = mapped_column(Date, nullable=True)
     data_ult_parc: Mapped[Date] = mapped_column(Date, nullable=True)
-    val_entrada: Mapped[DECIMAL] = mapped_column(DECIMAL(10, 2), nullable=True)
+    val_entrada: Mapped[Decimal] = mapped_column(DECIMAL(10, 2), nullable=True)
     qtd_parc_ent: Mapped[int] = mapped_column(Integer, nullable=True)
     data_pri_parc_entr: Mapped[Date] = mapped_column(Date, nullable=True)
     data_ult_parc_entr: Mapped[Date] = mapped_column(Date, nullable=True)
@@ -53,8 +55,8 @@ class NegociacaoCredito(Base):
     is_term_ex_jud: Mapped[bool] = mapped_column(default=False)
     is_hom_ext_jud: Mapped[bool] = mapped_column(default=False)
     qtd: Mapped[int] = mapped_column(Integer, default=1)
-    taxa_mes: Mapped[DECIMAL] = mapped_column(DECIMAL(10, 2), default=0.00)
-    val_parc: Mapped[DECIMAL] = mapped_column(DECIMAL(10, 2), default=0.00)
+    taxa_mes: Mapped[Decimal] = mapped_column(DECIMAL(10, 2), default=0.00)
+    val_parc: Mapped[Decimal] = mapped_column(DECIMAL(10, 2), default=0.00)
     is_cal_parc_mensal: Mapped[bool] = mapped_column(default=False)
     is_cal_parc_entrada: Mapped[bool] = mapped_column(default=False)
     is_descumprido: Mapped[bool] = mapped_column(default=False)

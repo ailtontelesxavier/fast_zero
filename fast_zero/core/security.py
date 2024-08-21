@@ -85,8 +85,9 @@ def get_current_active_user(current_user: User = Depends(get_current_user)):
 def verify_token(token: str):
     try:
         payload = decode(
-            token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-        username: str = payload.get("sub")
+            token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+        )
+        username: str = payload.get('sub')
         if username is None:
             return False
         return True

@@ -3,7 +3,6 @@ from enum import Enum
 from io import BytesIO
 
 import pyotp
-import pytz
 import qrcode
 from sqlalchemy import (
     BigInteger,
@@ -165,7 +164,7 @@ class User(Base):
         return self.qr_code
 
     def is_valid_otp(self, otp: str) -> bool:
-        """ lifespan_in_seconds = 30
+        """lifespan_in_seconds = 30
 
         TIME_ZONE = 'America/Sao_Paulo'
         tz = pytz.timezone(TIME_ZONE)
@@ -174,7 +173,7 @@ class User(Base):
         time_diff = now - self.otp_created_at.replace(tzinfo=tz)
         time_diff = time_diff.total_seconds()
         if time_diff >= lifespan_in_seconds:
-            return False """
+            return False"""
 
         totp = pyotp.TOTP(self.otp_base32)
         return totp.verify(otp)

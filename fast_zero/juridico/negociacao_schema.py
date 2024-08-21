@@ -1,5 +1,6 @@
 from datetime import date
 from decimal import Decimal
+from typing import Optional
 
 from pydantic import BaseModel
 
@@ -9,14 +10,14 @@ class NegociacaoInSchema(BaseModel):
     executado: str
     contrato: str
     val_devido: Decimal
-    val_desconto: Decimal | None
+    val_desconto: Optional[Decimal]
     val_neg: Decimal
-    data_pri_parc: date | None
-    data_ult_parc: date | None
-    val_entrada: Decimal | None
-    qtd_parc_ent: int | None
-    data_pri_parc_entr: date | None
-    data_ult_parc_entr: date | None
+    data_pri_parc: Optional[date]
+    data_ult_parc: Optional[date]
+    val_entrada: Optional[Decimal]
+    qtd_parc_ent: Optional[int]
+    data_pri_parc_entr: Optional[date]
+    data_ult_parc_entr: Optional[date]
     obs_val_neg: str
     is_term_ex_jud: bool
     is_hom_ext_jud: bool

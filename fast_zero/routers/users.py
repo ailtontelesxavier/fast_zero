@@ -59,7 +59,7 @@ async def create_user(user: UserSchema, session: T_Session):
         otp_auth_url='',
         otp_created_at=None,
     )
-    
+
     # configura otp
     # totp = pyotp.TOTP(db_user.otp_base32).now()
     TIME_ZONE = 'America/Sao_Paulo'
