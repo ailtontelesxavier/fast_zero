@@ -18,6 +18,7 @@ from fast_zero.juridico.negociacao_schema import (
     ParcelamentoOurSchema,
 )
 from fast_zero.models.models import User
+from fast_zero.schemas.schemas import Message
 
 router = APIRouter(prefix='/juridico', tags=['negociação'])
 T_Session = Annotated[Session, Depends(get_session)]
@@ -140,7 +141,6 @@ def create_negociacao(
 
 @router.patch(
     '/negociacao/{negociacao_id}',
-    # status_code=HTTPStatus.OK,
     response_model=NegociacaoOutSchema)
 def update_negociacao_by_id(
     negociacao_id: int,
@@ -160,6 +160,25 @@ def update_negociacao_by_id(
     session.commit()
     session.refresh(db_row)
     return db_row
+
+
+@router.delete('/negociacao/{negociacao_id}', response_model=Message)
+def delete_negociacao(
+    negociacao_id: int,
+    session: T_Session,
+    user: T_CurrentUser
+):
+    db_row = session.get(NegociacaoCredito, negociacao_id)
+
+    if not db_row:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND, detail='Negociação not found.'
+        )
+
+    session.delete(db_row)
+    session.commit()
+
+    return {'message': 'Negociação deletado'}
 
 
 @router.get('/parcelamento', response_model=ParcelamentoListSchema)
