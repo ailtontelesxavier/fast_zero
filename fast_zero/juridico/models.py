@@ -105,6 +105,9 @@ def after_insert_negociacao_credito(mapper, connection, target):
                             val_parcela=target.val_parc,
                             is_pg=False,
                             is_val_juros=False,
+                            val_pago=None,
+                            data_pgto=None,
+                            obs_val_pago='',
                         )
                         session.add(parcela)
                     except Exception as e:
@@ -131,6 +134,9 @@ def after_insert_negociacao_credito(mapper, connection, target):
                             val_parcela=valor_parcela,
                             is_pg=False,
                             is_val_juros=False,
+                            val_pago=None,
+                            data_pgto=None,
+                            obs_val_pago='',
                         )
                         session.add(parcela)
                     except Exception as e:
