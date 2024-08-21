@@ -13,6 +13,7 @@ from fast_zero.juridico.negociacao_schema import (
     NegociacaoInSchema,
     NegociacaoListSchema,
     NegociacaoOutSchema,
+    NegociacaoUpdateSchema,
     ParcelamentoListSchema,
     ParcelamentoOurSchema,
 )
@@ -78,7 +79,11 @@ def get_negociacao_by_id(
     status_code=HTTPStatus.CREATED,
     response_model=NegociacaoOutSchema,
 )
-def create_negociacao(negociacao: NegociacaoInSchema, session: T_Session):
+def create_negociacao(
+    negociacao: NegociacaoInSchema,
+    session: T_Session,
+    user: T_CurrentUser
+):
     db_negociacao = session.scalar(
         select(NegociacaoCredito).where(
             (NegociacaoCredito.executado == negociacao.executado)
@@ -133,10 +138,28 @@ def create_negociacao(negociacao: NegociacaoInSchema, session: T_Session):
     return db_negociacao
 
 
-def update_negociacao_by_id():
-    ...
-    # for key, value in negociacao.model_dump(exclude_unset=True).items():
-    #     setattr(db_user, key, value)
+@router.patch(
+    '/negociacao/{negociacao_id}',
+    # status_code=HTTPStatus.OK,
+    response_model=NegociacaoOutSchema)
+def update_negociacao_by_id(
+    negociacao_id: int,
+    negociacao: NegociacaoUpdateSchema,
+    session: T_Session,
+    user: T_CurrentUser
+):
+    db_row = session.get(NegociacaoCredito, negociacao_id)
+    if not db_row:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND, detail='Negociação not found.'
+        )
+    for key, value in negociacao.model_dump(exclude_unset=True).items():
+        setattr(db_row, key, value)
+        
+    session.add(db_row)
+    session.commit()
+    session.refresh(db_row)
+    return db_row
 
 
 @router.get('/parcelamento', response_model=ParcelamentoListSchema)

@@ -45,8 +45,8 @@ class NegociacaoCredito(Base):
         DECIMAL(10, 2), nullable=True
     )
     val_neg: Mapped[Decimal] = mapped_column(DECIMAL(10, 2), nullable=False)
-    data_pri_parc: Mapped[Date] = mapped_column(Date, nullable=True)
-    data_ult_parc: Mapped[Date] = mapped_column(Date, nullable=True)
+    data_pri_parc: Mapped[Date] = mapped_column(Date)
+    data_ult_parc: Mapped[Date] = mapped_column(Date)
     val_entrada: Mapped[Decimal] = mapped_column(DECIMAL(10, 2), nullable=True)
     qtd_parc_ent: Mapped[int] = mapped_column(Integer, nullable=True)
     data_pri_parc_entr: Mapped[Date] = mapped_column(Date, nullable=True)
