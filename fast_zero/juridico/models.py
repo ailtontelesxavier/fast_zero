@@ -113,7 +113,7 @@ def after_insert_negociacao_credito(mapper, connection, target):
                     except Exception as e:
                         print(f'Erro ao criar parcela: {e}')
             session.commit()  # Salva as parcelas geradas
-            session.refresh(target)  # Atualiza o objeto `target` na sessão
+            # session.refresh(target)  # Atualiza o objeto `target` na sessão
 
         if target.is_cal_parc_entrada:
             target.is_cal_parc_entrada = False
@@ -142,7 +142,7 @@ def after_insert_negociacao_credito(mapper, connection, target):
                     except Exception as e:
                         print(f'Erro ao criar parcela de entrada: {e}')
             session.commit()  # Salva as parcelas de entrada geradas
-            session.refresh(target)  # Atualiza o objeto `target` na sessão
+            # session.refresh(target)  # Atualiza o objeto `target` na sessão
 
         session.commit()  # Salva todas as alterações finais no objeto `target`
 

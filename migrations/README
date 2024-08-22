@@ -10,3 +10,5 @@ alembic heads
 alembic downgrade <versao>
 
 SELECT setval('negociacao_credito_id_seq', 381);
+
+SELECT setval('parcelamento_negociacao_pkey', );
