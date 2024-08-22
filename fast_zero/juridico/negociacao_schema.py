@@ -67,16 +67,29 @@ class NegociacaoListSchema(BaseModel):
 
 
 class ParcelamentoInSchema(BaseModel):
-    negociacao_id: int
-    data: date | None
+    negociacao_id: int 
+    data: date
     val_parcela: Decimal
-    val_pago: Decimal | None
-    obs_val_pago: str
-    data_pgto: date | None
+    val_pago: Decimal | None = None
+    obs_val_pago: str | None = None
+    data_pgto: date | None = None
     type: int
     numero_parcela: int
-    is_pg: bool
+    is_pg: bool | None = False
     is_val_juros: bool
+
+
+class ParcelamentoUpdateSchema(BaseModel):
+    negociacao_id: int | None = None
+    data: date | None = None
+    val_parcela: Decimal | None = None
+    val_pago: Decimal | None = None
+    obs_val_pago: str | None = None
+    data_pgto: date | None = None
+    type: int | None = None
+    numero_parcela: int | None = None
+    is_pg: bool | None = False
+    is_val_juros: bool | None = False
 
 
 class ParcelamentoOurSchema(ParcelamentoInSchema):

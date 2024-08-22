@@ -156,7 +156,14 @@ def after_insert_negociacao_credito(mapper, connection, target):
 @table_registry.mapped_as_dataclass
 class ParcelamentoNegociacao(Base):
     __tablename__ = 'parcelamento_negociacao'
-    # __table_args__ = ({'order_by': ['numero_parcela', 'data', 'type']},)
+    __table_args__ = (
+        UniqueConstraint(
+            'numero_parcela',
+            'type',
+            'negociacao_id',
+            name='unique_numero_type_negociacao',
+        ),
+    )
 
     id: Mapped[int] = mapped_column(init=False, primary_key=True)
 

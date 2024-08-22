@@ -14,8 +14,10 @@ from fast_zero.juridico.negociacao_schema import (
     NegociacaoListSchema,
     NegociacaoOutSchema,
     NegociacaoUpdateSchema,
+    ParcelamentoInSchema,
     ParcelamentoListSchema,
     ParcelamentoOurSchema,
+    ParcelamentoUpdateSchema,
 )
 from fast_zero.models.models import User
 from fast_zero.schemas.schemas import Message
@@ -120,9 +122,9 @@ def create_negociacao(
         qtd_parc_ent=negociacao.qtd_parc_ent,  # type: ignore
         data_pri_parc_entr=negociacao.data_pri_parc_entr,  # type: ignore
         data_ult_parc_entr=negociacao.data_ult_parc_entr,  # type: ignore
-        obs_val_neg=negociacao.obs_val_neg,
-        is_term_ex_jud=negociacao.is_term_ex_jud,
-        is_hom_ext_jud=negociacao.is_hom_ext_jud,
+        obs_val_neg=negociacao.obs_val_neg,  # type: ignore
+        is_term_ex_jud=negociacao.is_term_ex_jud,  # type: ignore
+        is_hom_ext_jud=negociacao.is_hom_ext_jud,  # type: ignore
         qtd=negociacao.qtd,
         taxa_mes=negociacao.taxa_mes,
         val_parc=negociacao.val_parc,
@@ -142,7 +144,7 @@ def create_negociacao(
 @router.patch(
     '/negociacao/{negociacao_id}',
     response_model=NegociacaoOutSchema)
-def update_negociacao_by_id(
+def update_negociacao_by_id( # type: ignore
     negociacao_id: int,
     negociacao: NegociacaoUpdateSchema,
     session: T_Session,
@@ -163,7 +165,7 @@ def update_negociacao_by_id(
 
 
 @router.delete('/negociacao/{negociacao_id}', response_model=Message)
-def delete_negociacao(
+def delete_negociacao( # type: ignore
     negociacao_id: int,
     session: T_Session,
     user: T_CurrentUser
@@ -224,3 +226,89 @@ def get_parcelamento_by_id(
         )
 
     return row
+
+
+@router.post(
+    '/parcelamento',
+    status_code=HTTPStatus.CREATED,
+    response_model=ParcelamentoOurSchema,
+)
+def create_parcelamento(
+    parcelamento: ParcelamentoInSchema,
+    session: T_Session,
+    user: T_CurrentUser
+):
+    db_parcelamento = session.scalar(
+        select(ParcelamentoNegociacao).where(
+            (ParcelamentoNegociacao.numero_parcela == parcelamento.numero_parcela)
+            & (ParcelamentoNegociacao.type == parcelamento.type)
+            & (ParcelamentoNegociacao.negociacao_id == parcelamento.negociacao_id)
+        )
+    )
+
+    if db_parcelamento:
+        raise HTTPException(
+            status_code=HTTPStatus.CONFLICT,
+            detail='parcelamento Credito ja cadastrado',
+        )
+
+    db_parcelamento = ParcelamentoNegociacao(
+        negociacao_id=parcelamento.negociacao_id,
+        data=parcelamento.data,  # type: ignore
+        val_parcela=parcelamento.val_parcela,  # type: ignore
+        val_pago=parcelamento.val_pago,  # type: ignore
+        obs_val_pago=parcelamento.obs_val_pago, # type: ignore
+        data_pgto=parcelamento.data_pgto,  # type: ignore
+        type=parcelamento.type,
+        numero_parcela=parcelamento.numero_parcela,
+        is_pg=parcelamento.is_pg,
+        is_val_juros=parcelamento.is_val_juros
+    )
+
+    session.add(db_parcelamento)
+    session.commit()
+    session.refresh(db_parcelamento)
+    return db_parcelamento
+
+
+@router.patch(
+    '/parcelamento/{parcelamento_id}',
+    response_model=ParcelamentoOurSchema)
+def update_parcelamento_by_id(
+    parcelamento_id: int,
+    parcelamento: ParcelamentoUpdateSchema,
+    session: T_Session,
+    user: T_CurrentUser
+):
+    db_row = session.get(ParcelamentoNegociacao, parcelamento_id)
+    if not db_row:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND, detail='Parcelamento not found.'
+        )
+    for key, value in parcelamento.model_dump(exclude_unset=True).items():
+        setattr(db_row, key, value)
+        
+    session.add(db_row)
+    session.commit()
+    session.refresh(db_row)
+    return db_row
+
+
+@router.delete('/parcelamento/{parcelamento_id}', response_model=Message)
+def delete_negociacao(
+    parcelamento_id: int,
+    session: T_Session,
+    user: T_CurrentUser
+):
+    db_row = session.get(ParcelamentoNegociacao, parcelamento_id)
+
+    if not db_row:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND, detail='Parcelamento not found.'
+        )
+
+    session.delete(db_row)
+    session.commit()
+
+    return {'message': 'Parcelamento deletado'}
+
