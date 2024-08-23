@@ -1,10 +1,11 @@
 from datetime import datetime, timedelta, date
+from dateutil import parser
 from decimal import Decimal
 from http import HTTPStatus
 from typing import Annotated, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import asc, desc, func, select, and_
+from sqlalchemy import asc, desc, func, select, and_, or_
 from sqlalchemy.orm import Session, joinedload
 
 from fast_zero.core.database import get_session
@@ -124,9 +125,9 @@ def create_negociacao(
         val_parc=negociacao.val_parc,
         is_cal_parc_mensal=True,
         is_cal_parc_entrada=True,
-        is_descumprido=negociacao.is_descumprido,
-        is_liquidado=negociacao.is_liquidado,
-        is_retorno_execucao=negociacao.is_retorno_execucao,
+        is_descumprido=negociacao.is_descumprido, # type: ignore
+        is_liquidado=negociacao.is_liquidado, # type: ignore
+        is_retorno_execucao=negociacao.is_retorno_execucao, # type: ignore
     )
 
     session.add(db_negociacao)
@@ -438,7 +439,7 @@ async def negoc_ha_venc_30d(
             response_model=NegociacaoVenciNaSemanaResponse)
 async def negoc_vencidos(
     session: T_Session,
-    #user: T_CurrentUser,
+    user: T_CurrentUser,
     page: int = 1,      
     page_size: int = 10,
 ):
@@ -500,3 +501,81 @@ async def negoc_vencidos(
         "total_records": total_records,
         "total_val_parcela": total_val_parcela,
     }
+
+
+@router.get("/negociacao/relatorio/")
+async def negociacao_relatorio(
+    session: T_Session,
+    user: T_CurrentUser,
+    tipo: int,
+    data_inicial: str,
+    data_final: str,
+):
+    # Parse das datas
+    data_inicial_parsed = parser.parse(" ".join(data_inicial.split(" ")[0:6]))
+    data_final_parsed = parser.parse(" ".join(data_final.split(" ")[0:6]))
+
+    if tipo == 1:
+        # Tipo 1: Negociações de Crédito
+        query = (
+            select(
+                NegociacaoCredito.id,
+                NegociacaoCredito.processo,
+                NegociacaoCredito.executado,
+                NegociacaoCredito.contrato,
+                NegociacaoCredito.val_devido,
+                NegociacaoCredito.val_neg,
+                NegociacaoCredito.taxa_mes,
+                NegociacaoCredito.qtd,
+                NegociacaoCredito.val_parc,
+            )
+            .filter(
+                and_(
+                    NegociacaoCredito.data_pri_parc >= data_inicial_parsed,
+                    NegociacaoCredito.data_pri_parc <= data_final_parsed
+                )
+            )
+            .order_by(NegociacaoCredito.executado)
+        )
+        result = session.execute(query).all()
+        return [dict(row._mapping) for row in result]
+
+    elif tipo == 2:
+        # Tipo 2: Parcelas de Negociação
+        query = (
+            select(
+                ParcelamentoNegociacao.id,
+                ParcelamentoNegociacao.numero_parcela,
+                NegociacaoCredito.processo,
+                NegociacaoCredito.executado,
+                ParcelamentoNegociacao.type,
+                ParcelamentoNegociacao.data,
+                ParcelamentoNegociacao.val_parcela,
+                ParcelamentoNegociacao.val_pago,
+                ParcelamentoNegociacao.data_pgto,
+                ParcelamentoNegociacao.is_val_juros,
+            )
+            .join(NegociacaoCredito, ParcelamentoNegociacao.negociacao_id == NegociacaoCredito.id)
+            .filter(
+                or_(
+                    and_(
+                        ParcelamentoNegociacao.data >= data_inicial_parsed,
+                        ParcelamentoNegociacao.data <= data_final_parsed,
+                    ),
+                    and_(
+                        ParcelamentoNegociacao.data_pgto >= data_inicial_parsed,
+                        ParcelamentoNegociacao.data_pgto <= data_final_parsed,
+                    )
+                )
+            )
+            .order_by(NegociacaoCredito.executado,
+                      ParcelamentoNegociacao.numero_parcela,
+                      ParcelamentoNegociacao.type,
+                      ParcelamentoNegociacao.data,
+                      ParcelamentoNegociacao.data_pgto
+                    )
+        )
+        result = session.execute(query).all()
+        return [dict(row._mapping) for row in result]
+
+    return {"detail": "Invalid type parameter"}
