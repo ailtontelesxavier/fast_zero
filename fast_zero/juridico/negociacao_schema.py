@@ -1,6 +1,6 @@
 from datetime import date
 from decimal import Decimal
-from typing import Optional
+from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -99,3 +99,20 @@ class ParcelamentoOurSchema(ParcelamentoInSchema):
 class ParcelamentoListSchema(BaseModel):
     rows: list[ParcelamentoOurSchema]
     total_records: int
+
+
+class ParcelaResponse(BaseModel):
+    id: int
+    processo: str
+    executado: str
+    type: int
+    data: date
+    val_parcela: float
+    val_pago: Optional[Decimal] = None
+    data_pgto: Optional[date] = None
+    juros: bool
+
+class NegociacaoVenciNaSemanaResponse(BaseModel):
+    rows: List[ParcelaResponse]
+    total_records: int
+    total_val_parcela: float

@@ -11,6 +11,7 @@ from sqlalchemy import (
     String,
     UniqueConstraint,
 )
+from sqlalchemy.orm import relationship
 from sqlalchemy.orm import (
     Mapped,
     Session,
@@ -98,7 +99,7 @@ def after_insert_negociacao_credito(mapper, connection, target):
                         data_temp += relativedelta(months=1)
                     try:
                         parcela = ParcelamentoNegociacao(
-                            negociacao_id=target.id,
+                            negociacao_id=target.id,  # type: ignore
                             type=1,
                             numero_parcela=i,
                             data=data_temp,
@@ -127,7 +128,7 @@ def after_insert_negociacao_credito(mapper, connection, target):
                         data_temp += relativedelta(months=1)
                     try:
                         parcela = ParcelamentoNegociacao(
-                            negociacao_id=target.id,
+                            negociacao_id=target.id,  # type: ignore
                             type=2,
                             numero_parcela=i,
                             data=data_temp,
@@ -172,9 +173,9 @@ class ParcelamentoNegociacao(Base):
         ForeignKey('negociacao_credito.id', ondelete='CASCADE'),
         nullable=False,
     )
-    #    negociacao: Mapped['NegociacaoCredito'] = relationship(
-    #        'NegociacaoCredito', back_populates='parcelamento_negociacao'
-    #    )
+    negociacao: Mapped['NegociacaoCredito'] = relationship(
+        'NegociacaoCredito'
+    )
 
     data: Mapped[Date] = mapped_column(Date, nullable=False)
     val_parcela: Mapped[DECIMAL] = mapped_column(
