@@ -11,6 +11,7 @@ from fast_zero.core.database import get_session
 from fast_zero.core.security import (
     get_current_user,
     get_password_hash,
+    verify_password,
 )
 from fast_zero.models.models import User, UserRoles
 from fast_zero.schemas.schemas import (
@@ -28,6 +29,7 @@ from fast_zero.schemas.schemas import (
 
 router = APIRouter(prefix='/users', tags=['users'])
 T_Session = Annotated[Session, Depends(get_session)]
+T_CurrentUser = Annotated[User, Depends(get_current_user)]
 
 
 @router.post('/', status_code=HTTPStatus.CREATED, response_model=UserPublic)
@@ -148,6 +150,33 @@ async def update_user(
     session.refresh(current_user)
 
     return current_user
+
+
+@router.put('/update-password/', response_model=Message)
+async def update_password(
+    session: T_Session,
+    current_user: T_CurrentUser,
+    password: str,
+    new_password: str,
+):
+    db_user = session.get(User, current_user.id)
+    if db_user is None:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND,
+            detail='User not found',
+        )
+    
+    if not verify_password(password, db_user.password):
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail='Incorrect password',
+        )
+
+    db_user.password = get_password_hash(new_password)
+    session.commit()
+    session.refresh(db_user)
+
+    return {'message': 'Senha atualizada'}
 
 
 @router.put('/update-password/{user_id}', response_model=UserPublic)
