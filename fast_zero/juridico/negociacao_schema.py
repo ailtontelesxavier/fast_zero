@@ -10,11 +10,11 @@ class NegociacaoInSchema(BaseModel):
     executado: str
     contrato: str
     val_devido: Decimal
-    val_desconto: Optional[Decimal] = Field(default=Decimal("0.00"))
+    val_desconto: Optional[Decimal] = Field(default=Decimal('0.00'))
     val_neg: Decimal
     data_pri_parc: Optional[date]
     data_ult_parc: Optional[date]
-    val_entrada: Optional[Decimal] = Field(default=Decimal("0"))
+    val_entrada: Optional[Decimal] = Field(default=Decimal('0'))
     qtd_parc_ent: Optional[int] = Field(default=0)
     data_pri_parc_entr: Optional[date] = Field(default=None)
     data_ult_parc_entr: Optional[date] = Field(default=None)
@@ -67,7 +67,7 @@ class NegociacaoListSchema(BaseModel):
 
 
 class ParcelamentoInSchema(BaseModel):
-    negociacao_id: int 
+    negociacao_id: int
     data: date
     val_parcela: Decimal
     val_pago: Decimal | None = None
@@ -111,6 +111,7 @@ class ParcelaResponse(BaseModel):
     val_pago: Optional[Decimal] = None
     data_pgto: Optional[date] = None
     juros: bool
+
 
 class NegociacaoVenciNaSemanaResponse(BaseModel):
     rows: List[ParcelaResponse]

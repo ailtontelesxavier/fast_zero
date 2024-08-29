@@ -165,7 +165,7 @@ async def update_password(
             status_code=HTTPStatus.NOT_FOUND,
             detail='User not found',
         )
-    
+
     if not verify_password(data.password, db_user.password):
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST,

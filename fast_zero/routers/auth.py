@@ -13,7 +13,9 @@ from fast_zero.core.security import (
     verify_password,
 )
 from fast_zero.models.models import Permission, Role, User, UserRoles
-from fast_zero.schemas.permissioes_schema import ModuleListSchema, ModuleOutSchema
+from fast_zero.schemas.permissioes_schema import (
+    ModuleListSchema,
+)
 from fast_zero.schemas.schemas import Message, Token
 
 router = APIRouter(prefix='/auth', tags=['auth'])
@@ -70,11 +72,8 @@ async def verify_user_token(
     return {'message': 'Ola Mundo!'}
 
 
-@router.get("/modules", response_model=ModuleListSchema)
-async def get_user_modules(
-    current_user: T_CurrentUser,
-    session: T_Session
-):
+@router.get('/modules', response_model=ModuleListSchema)
+async def get_user_modules(current_user: T_CurrentUser, session: T_Session):
     # Obtém as roles do usuário atual
     user_roles = session.scalars(
         select(UserRoles).where(UserRoles.user_id == current_user.id)
@@ -84,7 +83,9 @@ async def get_user_modules(
     role_ids = [user_role.role_id for user_role in user_roles]
 
     if not role_ids:
-        raise HTTPException(status_code=404, detail="No roles found for this user.")
+        raise HTTPException(
+            status_code=404, detail='No roles found for this user.'
+        )
 
     # Obtém as permissões associadas às roles
     permissions = session.scalars(
@@ -92,9 +93,12 @@ async def get_user_modules(
     ).all()
 
     if not permissions:
-        raise HTTPException(status_code=404, detail="No permissions found for the user's roles.")
+        raise HTTPException(
+            status_code=404,
+            detail="No permissions found for the user's roles.",
+        )
 
     # Coleta os módulos associados às permissões
     modules = [permission.module for permission in permissions]
 
-    return {"modules": modules, 'total_records': len(modules)}
+    return {'modules': modules, 'total_records': len(modules)}

@@ -11,12 +11,12 @@ from sqlalchemy import (
     String,
     UniqueConstraint,
 )
-from sqlalchemy.orm import relationship
 from sqlalchemy.orm import (
     Mapped,
     Session,
     mapped_column,
     registry,
+    relationship,
 )
 
 from fast_zero.models.models import Base, event
@@ -173,9 +173,7 @@ class ParcelamentoNegociacao(Base):
         ForeignKey('negociacao_credito.id', ondelete='CASCADE'),
         nullable=False,
     )
-    negociacao: Mapped['NegociacaoCredito'] = relationship(
-        'NegociacaoCredito'
-    )
+    negociacao: Mapped['NegociacaoCredito'] = relationship('NegociacaoCredito')
 
     data: Mapped[Date] = mapped_column(Date, nullable=False)
     val_parcela: Mapped[DECIMAL] = mapped_column(
