@@ -47,6 +47,11 @@ class UserPasswordUpdate(BaseModel):
     password: str
 
 
+class UpdatePasswordRequest(BaseModel):
+    password: str
+    new_password: str
+
+
 class UserList(BaseModel):
     users: list[UserPublic]
     total_records: int

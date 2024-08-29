@@ -17,6 +17,7 @@ from fast_zero.models.models import User, UserRoles
 from fast_zero.schemas.schemas import (
     ListUserFull,
     Message,
+    UpdatePasswordRequest,
     UserFull,
     UserList,
     UserPasswordUpdate,
@@ -156,8 +157,7 @@ async def update_user(
 async def update_password(
     session: T_Session,
     current_user: T_CurrentUser,
-    password: str,
-    new_password: str,
+    data: UpdatePasswordRequest,
 ):
     db_user = session.get(User, current_user.id)
     if db_user is None:
@@ -166,13 +166,13 @@ async def update_password(
             detail='User not found',
         )
     
-    if not verify_password(password, db_user.password):
+    if not verify_password(data.password, db_user.password):
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST,
             detail='Incorrect password',
         )
 
-    db_user.password = get_password_hash(new_password)
+    db_user.password = get_password_hash(data.new_password)
     session.commit()
     session.refresh(db_user)
 
