@@ -3,7 +3,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.orm import Session
 
 from fast_zero.core.database import get_session
@@ -52,6 +52,8 @@ def login_for_access_token(
         )
 
     access_token = create_access_token(data={'sub': user.username})
+    
+    user.last_login = func.now()
 
     return {'access_token': access_token, 'token_type': 'Bearer'}
 

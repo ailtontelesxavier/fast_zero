@@ -116,6 +116,10 @@ class User(Base):
     is_active: Mapped[bool] = mapped_column(default=True)
     is_staff: Mapped[bool] = mapped_column(default=True)
     is_superuser: Mapped[bool] = mapped_column(default=False)
+    last_login: Mapped[datetime] = mapped_column(
+        nullable=True,
+        default=None
+    )
     created_at: Mapped[datetime] = mapped_column(
         init=False, server_default=func.now()
     )
