@@ -43,7 +43,7 @@ def insertUser(row):
     INSERT INTO public.users(
 	id, username, password, email, is_active, created_at, updated_at,
     full_name, otp_base32, otp_created_at, login_otp_used, is_staff,
-    is_superuser, otp_auth_url)
+    is_superuser, otp_auth_url, last_login)
 	VALUES (
         :id,
         :username,
@@ -58,7 +58,8 @@ def insertUser(row):
         :login_otp_used,
         :is_staff,
         :is_superuser,
-        :otp_auth_url
+        :otp_auth_url,
+        :last_login
     );
     """
 
@@ -73,43 +74,20 @@ def insertUser(row):
                 sa.text(insert_sql),
                 {
                     'id':row[0],
-                    'username':row[0],
-                    'password':row[0],
-                    'email':row[0],
-                    'is_active':row[0],
-                    'created_at':row[0],
-                    'updated_at':row[0],
+                    'username':row[1],
+                    'password':row[2],
+                    'email':row[3],
+                    'is_active':row[4],
+                    'created_at':row[5],
+                    'updated_at':None,
                     'full_name':row[0],
                     'otp_base32':row[0],
                     'otp_created_at':row[0],
                     'login_otp_used':row[0],
                     'is_staff':row[0],
                     'is_superuser':row[0],
-                    'otp_auth_url':row[0]
-                    'id': row[0],
-                    'processo': row[1],
-                    'executado': row[2],
-                    'contrato': row[3],
-                    'is_term_ex_jud': row[4],
-                    'is_hom_ext_jud': row[5],
-                    'val_devido': row[6],
-                    'val_desconto': row[7] if row[7] else None,
-                    'val_neg': row[8],
-                    'obs_val_neg': row[9],
-                    'qtd': row[10],
-                    'taxa_mes': row[11],
-                    'val_parc': row[12],
-                    'data_pri_parc': row[13],
-                    'data_ult_parc': row[14],
-                    'val_entrada': row[15] if row[15] else None,
-                    'qtd_parc_ent': row[16] if row[16] else None,
-                    'data_pri_parc_entr': row[17] if row[17] else None,
-                    'data_ult_parc_entr': row[18] if row[18] else None,
-                    'is_cal_parc_mensal': row[19],
-                    'is_cal_parc_entrada': row[20],
-                    'is_descumprido': row[21],
-                    'is_liquidado': row[22],
-                    'is_retorno_execucao': row[23],
+                    'otp_auth_url':row[0],
+                    'last_login': row[8]
                 },
             )
             print(resultado)
