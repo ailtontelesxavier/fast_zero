@@ -38,6 +38,12 @@ def login_for_access_token(
             status_code=HTTPStatus.BAD_REQUEST,
             detail='Incorrect username or password',
         )
+    
+    if not user.is_active:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail='Incorrect status, username or password',
+        )
 
     if not verify_password(form_data.password, user.password):
         raise HTTPException(
