@@ -22,6 +22,7 @@ from fast_zero.schemas.schemas import (
     UserList,
     UserPasswordUpdate,
     UserPublic,
+    UserQrCode,
     UserRolesIn,
     UserRolesList,
     UserRolesOut,
@@ -118,7 +119,7 @@ async def get_user_like_by_username(
     return db_rows
 
 
-@router.get('/{user_id}', response_model=UserFull)
+@router.get('/{user_id}', response_model=UserQrCode)
 async def get_user_by_id(
     session: T_Session,
     user_id: int = Path(..., title='The ID of the user to retrieve'),
@@ -129,6 +130,7 @@ async def get_user_by_id(
             status_code=HTTPStatus.NOT_FOUND,
             detail='User not found',
         )
+    user.qr_code = user.get_otp_url()
     return user
 
 

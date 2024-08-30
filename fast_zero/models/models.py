@@ -156,7 +156,7 @@ class User(Base):
 
     def get_otp_url(self):
         return pyotp.TOTP(self.otp_base32).provisioning_uri(
-            name=self.full_name.lower(), issuer_name='Interno'
+            name=self.username.lower(), issuer_name='Fomento'
         )
 
     def get_qr_code(self):

@@ -38,6 +38,10 @@ class UserFull(UserPublic):
     updated_at: datetime
 
 
+class UserQrCode(UserFull):
+    qr_code: str
+
+
 class ListUserFull(BaseModel):
     rows: list[UserFull]
     total_records: int
