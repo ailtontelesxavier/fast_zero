@@ -7,8 +7,8 @@ from alembic import context
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
-#from fast_zero.models.models import table_registry
-from fast_zero.core.settings import Settings
+#from app.models.models import table_registry
+from app.core.settings import Settings
 
 from logging.config import fileConfig
 from sqlalchemy import engine_from_config, MetaData
@@ -19,8 +19,8 @@ import importlib
 
 # Atualize aqui para incluir o caminho onde seus arquivos models.py estão localizados
 MODEL_PATHS = [
-    'fast_zero.models.models',  # Por exemplo, se os arquivos estão em fast_zero/models
-    'fast_zero.juridico.models',  # Adicione outros caminhos conforme necessário
+    'app.models.models',  # Por exemplo, se os arquivos estão em app/models
+    'app.juridico.models',  # Adicione outros caminhos conforme necessário
 ]
 
 

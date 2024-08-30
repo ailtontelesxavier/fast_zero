@@ -5,9 +5,9 @@ import pytz
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from fast_zero.core.security import get_password_hash
-from fast_zero.core.settings import Settings
-from fast_zero.models.models import User
+from app.core.security import get_password_hash
+from app.core.settings import Settings
+from app.models.models import User
 
 
 @click.command()

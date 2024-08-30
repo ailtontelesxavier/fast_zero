@@ -12,4 +12,4 @@ RUN chmod +x /app/entrypoint.sh && pip install poetry \
 EXPOSE 8001
 
 # Comando para iniciar o servidor UVicorn
-CMD ["poetry", "run", "uvicorn", "--host", "0.0.0.0", "--port", "8001", "fast_zero.app:app"]
+CMD ["poetry", "run", "uvicorn", "--host", "0.0.0.0", "--port", "8002", "app.app:app"]

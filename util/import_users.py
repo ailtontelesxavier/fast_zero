@@ -1,6 +1,6 @@
 from datetime import datetime
 import pytz
-from fast_zero.models.models import User
+from app.models.models import User
 import sqlalchemy as sa
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker

@@ -1,0 +1,14 @@
+#producao
+#NEXTAUTH_URL=http://app.fomento.to.gov.br/
+#NEXTAUTH_SECRET=o2H0yYZj6!BncIdOvA9Tm7bqsCea1RU#VDl4wh8zXNx^EKS  # verycomplexsecretkey
+#NEXTAUTH_BACKEND_URL=http://django:8001/api/
+#NEXT_PUBLIC_BACKEND_URL=http://django:8001/api/
+
+#local
+#NEXTAUTH_URL=http://localhost:3000/
+NEXTAUTH_URL=http://10.99.1.124:3000/
+NEXTAUTH_SECRET=o2H0yYZj6!BncIdOvA9Tm7bqsCea1RU#VDl4wh8zXNx^EKS  # verycomplexsecretkey
+NEXTAUTH_BACKEND_URL=http://localhost:8001/api/
+NEXT_PUBLIC_BACKEND_URL=http://localhost:8001/api/
+
+

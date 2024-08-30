@@ -5,10 +5,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from testcontainers.postgres import PostgresContainer
 
-from fast_zero.app import app
-from fast_zero.core.database import get_session
-from fast_zero.core.security import get_password_hash
-from fast_zero.models.models import User, table_registry
+from app.app import app
+from app.core.database import get_session
+from app.core.security import get_password_hash
+from app.models.models import User, table_registry
 
 
 @pytest.fixture()

@@ -1,4 +1,25 @@
 services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000"
+    depends_on:
+      - fastzero_app
+  
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+    depends_on:
+      - frontend
+    links:
+      - frontend
+
   fastzero_database:
     image: postgres
     networks:
@@ -18,7 +39,7 @@ services:
     entrypoint: ./entrypoint.sh
     build: .
     ports:
-      - "8001:8001"
+      - "8002:8002"
     networks:
       backend:
         ipv4_address: 172.16.238.11

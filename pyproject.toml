@@ -56,8 +56,8 @@ addopts = '-p no:warnings'
 [tool.taskipy.tasks]
 lint = 'ruff check . && ruff check . --diff'
 format = 'ruff check . --fix && ruff format .'
-run = 'fastapi dev fast_zero/app.py'
+run = 'fastapi dev app/app.py'
 pre_test = 'task lint'
-#test = 'pytest -s -x --cov=fast_zero -vv'  # para no primeiro teste que falhar
-test = 'pytest --cov=fast_zero -vv'
+#test = 'pytest -s -x --cov=app -vv'  # para no primeiro teste que falhar
+test = 'pytest --cov=app -vv'
 post_test = 'coverage html'
