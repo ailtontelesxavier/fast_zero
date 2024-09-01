@@ -30,14 +30,29 @@ import ComboboxUser from "../_components/ComboboxUser";
 import ComboboxPerfil from "../_components/ComboboxPerfil";
 import { PaginationActionsApi } from "@/components/paginationActionsApi";
 
+interface UserType{
+  id: number;
+  username: string;
+  email: string;
+  name?: string; 
+  roles?: any[]; 
+}
+interface PerfilType{
+  id: number;
+  role: any[];
+}
+
 export default function GestaoPermissaoUser() {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState<number>(1);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState({ id: 0, username: "", email: '' });
-  const [perfil, setPerfil] = useState({ id: 0 });
+  const [user, setUser] = useState<UserType>({id: 0,
+    username: "",
+    email: "",
+    roles:[]});
+  const [perfil, setPerfil] = useState<PerfilType>({ id: 0, role:[] });
   const [perfilList, setPerfilList] = useState<any>();
 
   useEffect(() => {
@@ -128,8 +143,8 @@ export default function GestaoPermissaoUser() {
   }
 
   function limpar() {
-    setUser({ id: 0, name: "", roles: [] });
-    setPerfil({ id: 0 });
+    setUser({ id: 0, username: "", email:'', roles: [] });
+    setPerfil({ id: 0, role:[] });
     setPerfilList({ rows: [] });
     setPage(1);
   }
@@ -154,7 +169,7 @@ export default function GestaoPermissaoUser() {
               <ComboboxPerfil setObjet={setPerfil} objeto={perfil} />
               <Button
                 title="Adicionar Perfil"
-                disabled={user.id <= 0 || perfil.length <= 0}
+                disabled={user.id <= 0 || perfil.id <= 0}
                 onClick={() => addPerfil()}
               >
                 <FastForward className="h-4 w-4" />
@@ -173,7 +188,7 @@ export default function GestaoPermissaoUser() {
           </TableHeader>
           <TableBody>
             {console.log(perfilList)}
-            {perfilList?.rows.map((perfil) => (
+            {perfilList?.rows.map((perfil:any) => (
               <TableRow key={perfil.id}>
                 <TableCell className="font-medium">{perfil.id}</TableCell>
                 <TableCell className="font-medium">

@@ -59,14 +59,9 @@ export default function Page() {
     }
 
     async function savePassword() {
-        const config: AxiosRequestConfig = {
-            password: oldpassword,
-            new_password: password,
-            //headers:  new AxiosHeaders().setContentType("application/x-www-form-urlencoded"),
-        };
         try {
             await api
-                .put("/users/update-password/", config)
+                .put("/users/update-password/", {password: oldpassword,new_password: password,})
                 .then((response) => {
                     setSuccess(response.data)
                 })

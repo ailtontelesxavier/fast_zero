@@ -4,14 +4,19 @@ import { useState, useMemo, useEffect } from "react"
 import { Input } from "@/components/ui/input"
 import api from "@/lib/api"
 
+interface OptionType {
+  id: number;
+  title: string;
+}
+
 export default function ComboboxModule(
   {objeto}: {objeto:any}) {
   const [searchTerm, setSearchTerm] = useState(
     objeto.module && (objeto.module.title ?? "")
   )
-  const [selectedOption, setSelectedOption] = useState(null)
+  const [selectedOption, setSelectedOption] = useState<OptionType>()
   const [hasFocus, setHasFocus] = useState(false)
-  const [options, setOptions] = useState([])
+  const [options, setOptions] = useState<OptionType[]>([])
 
   useEffect(() => {
 
@@ -34,7 +39,7 @@ export default function ComboboxModule(
   }, [searchTerm, options])
   function handleInputChange(e:any) {
     setSearchTerm(e.target.value)
-    setSelectedOption(null)
+    setSelectedOption(undefined)
   }
   function handleOptionSelect(option:any) {
     setSelectedOption(option)

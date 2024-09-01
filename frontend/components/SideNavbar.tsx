@@ -3,6 +3,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { usePathname } from 'next/navigation';
 import { Nav } from "./nav";
 import { BackpackIcon } from "@radix-ui/react-icons";
 import { useSession, signIn, signOut } from "next-auth/react";
@@ -31,6 +32,7 @@ export default function SideNavbar({}: Props) {
   const onlyWidth = useWindowWidth();
   const mobileWidth = onlyWidth < 768;
   const router = useRouter();
+  const pathname = usePathname();
 
   const [modulos, setModulos] = useState([]);
 
@@ -156,7 +158,7 @@ export default function SideNavbar({}: Props) {
 
   // Filtrando os links com base nos módulos disponíveis
   const filteredLinks = links.filter((link) =>
-    modulos.some((module) => module.title === link.title)
+    modulos.some((module:any) => module.title === link.title)
   );
 
   return (
@@ -174,12 +176,12 @@ export default function SideNavbar({}: Props) {
       )}
       <Nav
         isCollapsed={mobileWidth ? true : isCollapsed}
-        links={links.map((link) => ({
+        links={links.map((link:any) => ({
           ...link,
-          isActive: router.pathname === link.href,
-          submenu: link.submenu?.map((sublink) => ({
+          isActive: pathname === link.href,
+          submenu: link.submenu?.map((sublink:any) => ({
             ...sublink,
-            isActive: router.pathname === sublink.href,
+            isActive: pathname === sublink.href,
           })),
         }))}
       />

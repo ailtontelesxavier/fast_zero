@@ -168,7 +168,7 @@ export default function RltNegociacao() {
     );
 
     async function rltNegociacao(formData: any) {
-        const stringFormatada = Array.from(formData.entries())
+        const stringFormatada = Array.from(formData.entries() as IterableIterator<[string, any]>)
             .map(([key, value]) => `${key}=${encodeURIComponent("" + value)}`)
             .join("&");
         var result: any = []

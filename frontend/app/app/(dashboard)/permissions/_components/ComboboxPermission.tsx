@@ -5,6 +5,12 @@ import { Input } from "@/components/ui/input";
 import api from "@/lib/api";
 import { PaginationActionsApiHover } from "@/components/paginationActionsApiHover";
 
+interface OptionType {
+  id:number;
+  name: string;
+  module: any;
+}
+
 export default function ComboboxPermission({
   objeto,
   setObjet,
@@ -13,9 +19,9 @@ export default function ComboboxPermission({
   setObjet: Function;
 }) {
   const [searchTerm, setSearchTerm] = useState(objeto.name ?? "");
-  const [selectedOption, setSelectedOption] = useState(null);
+  const [selectedOption, setSelectedOption] = useState<OptionType>();
   const [hasFocus, setHasFocus] = useState(false);
-  const [options, setOptions] = useState([]);
+  const [options, setOptions] = useState<OptionType[]>([]);
 
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState<number>(1);
@@ -23,9 +29,9 @@ export default function ComboboxPermission({
   const listRef = useRef(null);
 
   useEffect(() => {
-    getModel(page);
+    getModel();
 
-    async function getModel(page) {
+    async function getModel() {
       try {
         setLoading(true);
         await api
@@ -55,7 +61,7 @@ export default function ComboboxPermission({
   }, [searchTerm, options]);
   function handleInputChange(e: any) {
     setSearchTerm(e.target.value);
-    setSelectedOption(null);
+    setSelectedOption(undefined);
     setPage(1);
   }
   function handleOptionSelect(option: any) {

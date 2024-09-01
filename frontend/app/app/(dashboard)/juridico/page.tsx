@@ -48,7 +48,7 @@ export default function Component() {
         </div>
         <div className="space-y-2">
           <Label htmlFor="status">Status</Label>
-          <Select id="status">
+          <Select>
             <SelectTrigger>
               <SelectValue placeholder="Selecione o status" />
             </SelectTrigger>

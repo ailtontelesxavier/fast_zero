@@ -5,14 +5,19 @@ import { Input } from "@/components/ui/input"
 import api from "@/lib/api"
 import { PaginationActionsApiHover } from "@/components/paginationActionsApiHover"
 
+interface OptionType {
+  id: number;
+  name: string;
+}
+
 export default function ComboboxPerfil(
   {objeto, setObjet}: {objeto:any, setObjet: Function}) {
   const [searchTerm, setSearchTerm] = useState(
     objeto.name ?? ""
   )
-  const [selectedOption, setSelectedOption] = useState(null)
+  const [selectedOption, setSelectedOption] = useState<OptionType>()
   const [hasFocus, setHasFocus] = useState(false)
-  const [options, setOptions] = useState([])
+  const [options, setOptions] = useState<OptionType[]>([])
 
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState<number>(1);
@@ -41,7 +46,7 @@ export default function ComboboxPerfil(
   }, [searchTerm, options])
   function handleInputChange(e:any) {
     setSearchTerm(e.target.value)
-    setSelectedOption(null)
+    setSelectedOption(undefined)
     setPage(1);
   }
   function handleOptionSelect(option:any) {

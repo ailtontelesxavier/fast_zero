@@ -1,25 +1,35 @@
+# Use a imagem base do Node.js com Alpine Linux
 FROM node:22-alpine3.19
 
-WORKDIR /frontend
+# Defina o diretório de trabalho
+WORKDIR /app
 
+# Copie apenas os arquivos de dependências para a imagem
 COPY package.json package-lock.json ./
-#RUN npm install
-# Execute o comando de construção do Next.js
 
-COPY .env.local /frontend
+# Instale as dependências do projeto
+RUN npm install
 
+# Copie as variáveis de ambiente
+COPY .env.local ./
+
+# Copie o restante do código do projeto
 COPY . .
 
-RUN npm install -g npm@10.8.2 && npx next
-RUN npm install glob@^9.0.0
-#RUN npm install
+# Instale a versão específica do npm globalmente
+RUN npm install -g npm@10.8.2
+
+# Instale dependências adicionais
+#RUN npm install -g glob@^10.4.5
+
+# Construa o projeto Next.js
 RUN npm run build
+
+# Instale o PM2 globalmente para gerenciar processos
 RUN npm install pm2 -g
 
+# Defina o comando de inicialização usando PM2 para gerenciar o processo de produção
+CMD ["pm2-runtime", "npm", "--", "start"]
 
-#CMD ["pm2-runtime", "start", "npm", "--", "start"]
-#CMD ["pm2-runtime", "start", "npm", "--", "start", "--", "-H", "10.99.1.172"]
-#CMD ["pm2-runtime", "start", "npm", "--", "start", "--", "-H", "nextjs"]
-CMD ["pm2-runtime", "start", "npm", "--", "start"]
-
+# Exponha a porta que o aplicativo Next.js usará
 EXPOSE 3000

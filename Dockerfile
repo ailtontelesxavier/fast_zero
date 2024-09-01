@@ -1,7 +1,7 @@
 FROM python:3.11-slim
 ENV POETRY_VIRTUALENVS_CREATE=false
 
-WORKDIR app/
+WORKDIR /app
 COPY . .
 
 COPY entrypoint.sh /app/entrypoint.sh

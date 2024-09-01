@@ -7,6 +7,12 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import api from "@/lib/api";
 import { PaginationActionsApiHover } from "@/components/paginationActionsApiHover";
 
+interface OptionType {
+  id: number;
+  username: string;
+  email: string;
+}
+
 export default function ComboboxUser({
   objeto,
   setObjet,
@@ -15,9 +21,9 @@ export default function ComboboxUser({
   setObjet: Function;
 }) {
   const [searchTerm, setSearchTerm] = useState(objeto.username ?? "");
-  const [selectedOption, setSelectedOption] = useState(null);
+  const [selectedOption, setSelectedOption] = useState<OptionType>();
   const [hasFocus, setHasFocus] = useState(false);
-  const [options, setOptions] = useState([]);
+  const [options, setOptions] = useState<OptionType[]>([]);
 
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState<number>(1);
@@ -57,7 +63,7 @@ export default function ComboboxUser({
 
   function handleInputChange(e: any) {
     setSearchTerm(e.target.value);
-    setSelectedOption(null);
+    setSelectedOption(undefined);
     setPage(1);
   }
   function handleOptionSelect(option: any) {

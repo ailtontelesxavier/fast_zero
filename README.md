@@ -1,3 +1,5 @@
+sudo snap refresh node --channel=22
+
 # gera SECRET_KEY no terminal
 python
 import secrets

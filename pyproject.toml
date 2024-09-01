@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "fast-zero"
+name = "app"
 version = "0.1.0"
 description = ""
 authors = ["ailton <informatica@fomento.to.gov.br>"]

@@ -6,6 +6,7 @@ const nextConfig = {
         },
       },
       productionBrowserSourceMaps: true,
+      swcMinify: false,
 };
 
 export default nextConfig;

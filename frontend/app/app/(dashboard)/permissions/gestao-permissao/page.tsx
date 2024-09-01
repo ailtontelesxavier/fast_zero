@@ -30,6 +30,12 @@ import api from "@/lib/api";
 import AlertDialogComp from "@/components/AlertDialog";
 import { PaginationActionsApi } from "@/components/paginationActionsApi";
 
+interface PermissionType{
+  id: number;
+  name: string;
+  module: any;
+}
+
 export default function Component() {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState<number>(1);
@@ -37,7 +43,7 @@ export default function Component() {
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const [perfil, setPerfil] = useState({ id: 0, name: "", permissions: [] });
-  const [permission, setPermission] = useState({ id: 0 });
+  const [permission, setPermission] = useState<PermissionType>({ id: 0, name:'', module: undefined });
 
   useEffect(() => {
     console.log(perfil);
@@ -111,7 +117,7 @@ export default function Component() {
 
   function limpar() {
     setPerfil({ id: 0, name: "", permissions: [] });
-    setPermission({ id: 0 });
+    setPermission({ id: 0, name:'', module: undefined });
     setPage(1);
   }
 
@@ -138,7 +144,7 @@ export default function Component() {
               />
               <Button
                 title="Adicionar Permissão"
-                disabled={perfil.id <= 0 || permission.length <= 0}
+                disabled={perfil.id <= 0 || permission.id <= 0}
                 onClick={() => addPermission()}
               >
                 <FastForward className="h-4 w-4" />
@@ -157,7 +163,7 @@ export default function Component() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {perfil?.permissions.map((permission) => (
+            {perfil?.permissions.map((permission:any) => (
               <TableRow key={permission.id}>
                 <TableCell className="font-medium">{permission.id}</TableCell>
                 <TableCell className="font-medium">
