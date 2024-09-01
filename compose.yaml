@@ -1,10 +1,11 @@
+version: '3.9'
 services:
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "3000"
+      - "3000:3000"
     depends_on:
       - fastzero_app
   
@@ -20,7 +21,7 @@ services:
     links:
       - frontend
 
-  fastzero_database:
+  database:
     image: postgres
     networks:
       backend:
@@ -44,7 +45,7 @@ services:
       backend:
         ipv4_address: 172.16.238.11
     depends_on:
-      - fastzero_database
+      - database
     environment:
       DATABASE_URL: postgresql+psycopg://app_user:app_password@172.16.238.10:5432/app_db
 
