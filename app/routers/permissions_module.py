@@ -6,7 +6,8 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.core.database import get_session
-from app.models.models import Module
+from app.core.security import get_current_user, verify_user_with_roles_and_permissions
+from app.models.models import Module, User
 from app.schemas.permissioes_schema import (
     ModuleInShema,
     ModuleListSchema,
@@ -16,10 +17,17 @@ from app.schemas.schemas import Message
 
 router = APIRouter(prefix='/permissoes', tags=['permissoes'])
 T_Session = Annotated[Session, Depends(get_session)]
+T_CurrentUser = Annotated[User, Depends(get_current_user)]
 
 
 @router.get('/module', response_model=ModuleListSchema)
-def read_module(session: T_Session, page: int = 1, page_size: int = 10):
+def read_module(
+    session: T_Session,
+    user_current: T_CurrentUser,
+    page: int = 1,
+    page_size: int = 10
+):
+    verify_user_with_roles_and_permissions(user_current, permissions=["is_superuser"])
     skip = (page - 1) * page_size
     limit = page_size
 
@@ -36,8 +44,13 @@ def read_module(session: T_Session, page: int = 1, page_size: int = 10):
 
 @router.get('/module/find/', response_model=ModuleListSchema)
 def get_modules_by_partial_title(
-    title: str, session: T_Session, page: int = 1, page_size: int = 10
+    title: str,
+    session: T_Session,
+    user_current: T_CurrentUser,
+    page: int = 1,
+    page_size: int = 10
 ):
+    verify_user_with_roles_and_permissions(user_current, permissions=["is_superuser"])
     skip = (page - 1) * page_size
     limit = page_size
     partial_title = f'%{title}%'
@@ -61,7 +74,8 @@ def get_modules_by_partial_title(
 
 
 @router.get('/module/{module_id}', response_model=ModuleOutSchema)
-def read_module_by_id(module_id: int, session: T_Session):
+def read_module_by_id(module_id: int, session: T_Session, user_current: T_CurrentUser):
+    verify_user_with_roles_and_permissions(user_current, permissions=["is_superuser"])
     db_module = session.get(Module, module_id)
 
     if db_module is None:
@@ -76,7 +90,12 @@ def read_module_by_id(module_id: int, session: T_Session):
 @router.post(
     '/module', status_code=HTTPStatus.CREATED, response_model=ModuleOutSchema
 )
-def create_module(module: ModuleInShema, session: T_Session):
+def create_module(
+    module: ModuleInShema,
+    session: T_Session,
+    user_current: T_CurrentUser
+):
+    verify_user_with_roles_and_permissions(user_current, permissions=["is_superuser"])
     db_module = session.scalar(
         select(Module).where(Module.title == module.title)
     )
@@ -99,8 +118,12 @@ def create_module(module: ModuleInShema, session: T_Session):
 
 @router.put('/module/{module_id}', response_model=ModuleOutSchema)
 def update_module_by_id(
-    module_id: int, module: ModuleOutSchema, session: T_Session
+    module_id: int,
+    module: ModuleOutSchema,
+    session: T_Session,
+    user_current: T_CurrentUser
 ):
+    verify_user_with_roles_and_permissions(user_current, permissions=["is_superuser"])
     db_module = session.get(Module, module_id)
 
     if db_module is None:
@@ -136,7 +159,8 @@ def update_module_by_id(
 
 
 @router.delete('/module/{module_id}', response_model=Message)
-def delete_module(module_id: int, session: T_Session):
+def delete_module(module_id: int, session: T_Session, user_current: T_CurrentUser):
+    verify_user_with_roles_and_permissions(user_current, permissions=["is_superuser"])
     db_module = session.get(Module, module_id)
 
     if not db_module:

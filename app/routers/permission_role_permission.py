@@ -6,7 +6,8 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.core.database import get_session
-from app.models.models import RolePermissions
+from app.core.security import get_current_user, verify_user_with_roles_and_permissions
+from app.models.models import RolePermissions, User
 from app.schemas.permissioes_schema import (
     RolePermissionListSchema,
     RolePermissionsPublicSchema,
@@ -16,12 +17,17 @@ from app.schemas.schemas import Message
 
 router = APIRouter(prefix='/permissoes', tags=['role-permission'])
 T_Session = Annotated[Session, Depends(get_session)]
+T_CurrentUser = Annotated[User, Depends(get_current_user)]
 
 
 @router.get('/role-permission', response_model=RolePermissionListSchema)
 def read_role_permission(
-    session: T_Session, page: int = 1, page_size: int = 10
+    session: T_Session,
+    user_current: T_CurrentUser,
+    page: int = 1,
+    page_size: int = 10
 ):
+    verify_user_with_roles_and_permissions(user_current, permissions=["is_superuser"])
     skip = (page - 1) * page_size
     limit = page_size
 
@@ -42,8 +48,11 @@ def read_role_permission(
     response_model=RolePermissionsPublicSchema,
 )
 def create_role_permission(
-    role_permission: RolePermissionsSchema, session: T_Session
+    role_permission: RolePermissionsSchema,
+    session: T_Session,
+    user_current: T_CurrentUser
 ):
+    verify_user_with_roles_and_permissions(user_current, permissions=["is_superuser"])
     db_row = session.scalar(
         select(RolePermissions).where(
             (RolePermissions.role_id == role_permission.role_id)
@@ -69,7 +78,12 @@ def create_role_permission(
 
 
 @router.delete('/role-permission/{role_permission_id}', response_model=Message)
-def delete_rele_permission_by_id(role_permission_id: int, session: T_Session):
+def delete_rele_permission_by_id(
+    role_permission_id: int,
+    session: T_Session,
+    user_current: T_CurrentUser,
+):
+    verify_user_with_roles_and_permissions(user_current, permissions=["is_superuser"])
     db_row = session.get(RolePermissions, role_permission_id)
 
     if not db_row:
@@ -86,8 +100,12 @@ def delete_rele_permission_by_id(role_permission_id: int, session: T_Session):
 
 @router.delete('/role-permission/role_by_permission/', response_model=Message)
 def delete_rele_permission_by_role_permission(
-    role_id: int, permission_id: int, session: T_Session
+    role_id: int,
+    permission_id: int,
+    session: T_Session,
+    user_current: T_CurrentUser
 ):
+    verify_user_with_roles_and_permissions(user_current, permissions=["is_superuser"])
     db_row = session.scalar(
         select(RolePermissions).where(
             (RolePermissions.role_id == role_id)

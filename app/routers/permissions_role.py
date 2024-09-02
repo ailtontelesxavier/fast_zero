@@ -6,7 +6,8 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.core.database import get_session
-from app.models.models import Role
+from app.models.models import Role, User
+from app.core.security import get_current_user, verify_user_with_roles_and_permissions
 from app.schemas.permissioes_schema import (
     RoleFull,
     RoleList,
@@ -18,10 +19,17 @@ from app.schemas.schemas import Message
 
 router = APIRouter(prefix='/permissoes', tags=['role'])
 T_Session = Annotated[Session, Depends(get_session)]
+T_CurrentUser = Annotated[User, Depends(get_current_user)]
 
 
 @router.get('/role', response_model=RoleListSchema)
-def read_role(session: T_Session, page: int = 1, page_size: int = 10):
+def read_role(
+    session: T_Session,
+    user_current: T_CurrentUser,
+    page: int = 1,
+    page_size: int = 10
+):
+    verify_user_with_roles_and_permissions(user_current, permissions=["is_superuser"])
     skip = (page - 1) * page_size
     limit = page_size
 
@@ -37,7 +45,8 @@ def read_role(session: T_Session, page: int = 1, page_size: int = 10):
 
 
 @router.get('/role/{role_id}', response_model=RolePublic)
-def read_role_by_id(role_id: int, session: T_Session):
+def read_role_by_id(role_id: int, session: T_Session, user_current: T_CurrentUser):
+    verify_user_with_roles_and_permissions(user_current, permissions=["is_superuser"])
     db_role = session.get(Role, role_id)
 
     if db_role is None:
@@ -50,7 +59,8 @@ def read_role_by_id(role_id: int, session: T_Session):
 
 
 @router.get('/role/full/{role_id}', response_model=RoleFull)
-def read_role_full_by_id(role_id: int, session: T_Session):
+def read_role_full_by_id(role_id: int, session: T_Session, user_current: T_CurrentUser):
+    verify_user_with_roles_and_permissions(user_current, permissions=["is_superuser"])
     db_role = session.get(Role, role_id)
 
     if db_role is None:
@@ -64,8 +74,13 @@ def read_role_full_by_id(role_id: int, session: T_Session):
 
 @router.get('/role/find/', response_model=RoleList)
 def get_roles_by_partial_name(
-    name: str, session: T_Session, page: int = 1, page_size: int = 10
+    name: str,
+    session: T_Session,
+    user_current: T_CurrentUser,
+    page: int = 1,
+    page_size: int = 10
 ):
+    verify_user_with_roles_and_permissions(user_current, permissions=["is_superuser"])
     skip = (page - 1) * page_size
     limit = page_size
     partial_name = f'%{name}%'
@@ -89,7 +104,8 @@ def get_roles_by_partial_name(
 @router.post(
     '/role', status_code=HTTPStatus.CREATED, response_model=RolePublic
 )
-def create_role(role: RoleSchema, session: T_Session):
+def create_role(role: RoleSchema, session: T_Session, user_current: T_CurrentUser):
+    verify_user_with_roles_and_permissions(user_current, permissions=["is_superuser"])
     db_role = session.scalar(select(Role).where(Role.name == role.name))
 
     if db_role:
@@ -109,7 +125,13 @@ def create_role(role: RoleSchema, session: T_Session):
 
 
 @router.put('/role/{role_id}', response_model=RolePublic)
-def update_role_by_id(role_id: int, role: RolePublic, session: T_Session):
+def update_role_by_id(
+    role_id: int,
+    role: RolePublic,
+    session: T_Session,
+    user_current: T_CurrentUser
+):
+    verify_user_with_roles_and_permissions(user_current, permissions=["is_superuser"])
     db_role = session.get(Role, role_id)
 
     if db_role is None:
@@ -143,7 +165,8 @@ def update_role_by_id(role_id: int, role: RolePublic, session: T_Session):
 
 
 @router.delete('/role/{role_id}', response_model=Message)
-def delete_role(role_id: int, session: T_Session):
+def delete_role(role_id: int, session: T_Session, user_current: T_CurrentUser):
+    verify_user_with_roles_and_permissions(user_current, permissions=["is_superuser"])
     db_role = session.get(Role, role_id)
 
     if not db_role:

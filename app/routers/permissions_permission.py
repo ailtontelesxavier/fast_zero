@@ -6,7 +6,8 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.core.database import get_session
-from app.models.models import Module, Permission
+from app.core.security import get_current_user, verify_user_with_roles_and_permissions
+from app.models.models import Module, Permission, User
 from app.schemas.permissioes_schema import (
     ModuleOutSchema,
     PermissionListSchema,
@@ -18,12 +19,18 @@ from app.schemas.schemas import Message
 
 router = APIRouter(prefix='/permissoes', tags=['permission'])
 T_Session = Annotated[Session, Depends(get_session)]
+T_CurrentUser = Annotated[User, Depends(get_current_user)]
 
 
 @router.get('/permission', response_model=PermissionListSchema)
 def read_permission(
-    session: T_Session, module: int = 0, page: int = 1, page_size: int = 10
+    session: T_Session,
+    user_current: T_CurrentUser,
+    module: int = 0,
+    page: int = 1,
+    page_size: int = 10
 ):
+    verify_user_with_roles_and_permissions(user_current, permissions=["is_superuser"])
     skip = (page - 1) * page_size
     limit = page_size
 
@@ -60,8 +67,13 @@ def read_permission(
 
 @router.get('/permission/search/', response_model=PermissionListSchema)
 def read_permissions_by_name_or_module(
-    session: T_Session, title: str, page: int = 1, page_size: int = 10
+    session: T_Session,
+    user_current: T_CurrentUser,
+    title: str,
+    page: int = 1,
+    page_size: int = 10
 ):
+    verify_user_with_roles_and_permissions(user_current, permissions=["is_superuser"])
     skip = (page - 1) * page_size
     limit = page_size
 
@@ -102,7 +114,12 @@ def read_permissions_by_name_or_module(
 
 
 @router.get('/permission/{permission_id}', response_model=PermissionPublic)
-def read_permission_by_id(permission_id: int, session: T_Session):
+def read_permission_by_id(
+    permission_id: int,
+    session: T_Session,
+    user_current: T_CurrentUser
+):
+    verify_user_with_roles_and_permissions(user_current, permissions=["is_superuser"])
     db_permission = session.get(Permission, permission_id)
 
     if db_permission is None:
@@ -119,7 +136,12 @@ def read_permission_by_id(permission_id: int, session: T_Session):
     status_code=HTTPStatus.CREATED,
     response_model=PermissionPublic,
 )
-def create_permission(permission: PermissionSchema, session: T_Session):
+def create_permission(
+    permission: PermissionSchema,
+    session: T_Session,
+    user_current: T_CurrentUser
+):
+    verify_user_with_roles_and_permissions(user_current, permissions=["is_superuser"])
     db_permission = session.scalar(
         select(Permission).where(
             (Permission.name == permission.name)
@@ -155,8 +177,12 @@ def create_permission(permission: PermissionSchema, session: T_Session):
 
 @router.put('/permission/{permission_id}', response_model=PermissionPublic)
 def update_permission_by_id(
-    permission_id: int, permission: PermissionUpdateSchema, session: T_Session
+    permission_id: int,
+    permission: PermissionUpdateSchema,
+    session: T_Session,
+    user_current: T_CurrentUser
 ):
+    verify_user_with_roles_and_permissions(user_current, permissions=["is_superuser"])
     db_permission = session.get(Permission, permission_id)
 
     if db_permission is None:
@@ -181,7 +207,12 @@ def update_permission_by_id(
 
 
 @router.delete('/permission/{permission_id}', response_model=Message)
-def delete_module(permission_id: int, session: T_Session):
+def delete_module(
+    permission_id: int,
+    session: T_Session,
+    user_current: T_CurrentUser
+):
+    verify_user_with_roles_and_permissions(user_current, permissions=["is_superuser"])
     db_permission = session.get(Permission, permission_id)
 
     if not db_permission:

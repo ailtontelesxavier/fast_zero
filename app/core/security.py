@@ -72,6 +72,9 @@ async def get_current_user(
 
     if user is None:
         raise credentials_exception
+    
+    if not user.is_active:
+        raise HTTPException(status_code=400, detail='Inactive user')
 
     return user
 
@@ -99,29 +102,38 @@ def verify_token(token: str):
         return False
 
 
-def get_current_user_with_roles_and_permissions(
-    roles: list[str] = [], permissions: list[str] = []
+def verify_user_with_roles_and_permissions(
+    current_user: User, roles: list[str] = [], permissions: list[str] = []
 ):
-    def role_permission_checker(
-        current_user: User = Depends(get_current_active_user),
-    ):
-        if roles and not any(
-            role.name in roles for role in current_user.roles
-        ):
+    # Se o usuário for um superusuário, ele tem todas as permissões
+    if current_user.is_superuser:
+        return current_user
+    
+    if 'is_superuser' in permissions:
+        return current_user
+    
+    # Verifica se o usuário tem pelo menos um dos papéis (roles) exigidos
+    if roles and not any(role.role.name in roles for role in current_user.roles):
+        raise HTTPException(
+            status_code=403,
+            detail="Not enough role permissions",
+        )
+    
+    # Verifica se o usuário tem todas as permissões exigidas
+    if permissions:
+        user_permissions = {
+            perm.name
+            for role in current_user.roles
+            for perm in role.role.permissions
+        }
+        if not all(perm in user_permissions for perm in permissions):
             raise HTTPException(
                 status_code=403,
-                detail='Not enough role permissions',
+                detail="Not enough permissions",
             )
-        if permissions:
-            user_permissions = {
-                (
-                    perm.name
-                    for role in current_user.roles
-                    for perm in role.permissions
-                )
-            }
-            if not all(perm in user_permissions for perm in permissions):
-                raise HTTPException(
-                    status_code=403,
-                    detail='Not enough permissions',
-                )
+    
+    raise HTTPException(
+        status_code=403,
+        detail="Not enough permissions",
+    )
+
