@@ -29,16 +29,18 @@ def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(),
     session: Session = Depends(get_session),
 ):
+    print('aqui')
     user = session.scalar(
         select(User).where(User.username == form_data.username)
     )
 
+    print(user)
     if not user:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST,
             detail='Incorrect username or password',
         )
-    
+    print(user.is_active)
     if not user.is_active:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST,

@@ -8,6 +8,11 @@ services:
       - "3000:3000"
     depends_on:
       - fastzero_app
+    environment:
+      - NODE_ENV=production
+    networks:
+      backend:
+        ipv4_address: 172.16.238.9
   
   nginx:
     image: nginx:latest
@@ -20,6 +25,9 @@ services:
       - frontend
     links:
       - frontend
+    networks:
+      backend:
+        ipv4_address: 172.16.238.8
 
   database:
     image: postgres

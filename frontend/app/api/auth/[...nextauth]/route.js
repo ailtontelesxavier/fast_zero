@@ -61,6 +61,7 @@ const authOptions = {
             data: credentials,
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
           });
+          console.log(response.data)
           const data = response.data;
           if (data) {
             data.forceNewToken = true;
@@ -69,6 +70,7 @@ const authOptions = {
         } catch (error) {
           console.error(error);
         }
+        console.log(nul);
         return null;
       },
     })

@@ -2,7 +2,7 @@
 const nextConfig = {
     experimental: {
         serverActions: {
-          allowedOrigins: ['localhost:8001', '*.localhost:8001', '127.0.0.1:8001', '*.127.0.0.1:8001'],
+          allowedOrigins: ['localhost:8002', '*.localhost:8002', '127.0.0.1:8002', '*.127.0.0.1:8002'],
         },
       },
       productionBrowserSourceMaps: true,
