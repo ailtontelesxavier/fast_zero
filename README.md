@@ -1,4 +1,5 @@
 sudo snap refresh node --channel=22
+docker exec -it 6ff75289739c bash
 
 # gera SECRET_KEY no terminal
 python
