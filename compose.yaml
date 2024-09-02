@@ -10,6 +10,9 @@ services:
       - fastzero_app
     environment:
       - NODE_ENV=production
+      - URL_BASE=http://fastzero_app:8002
+      - NEXTAUTH_URL=http://fastzero_app:8002
+      - NEXTAUTH_BACKEND_URL=http://fastzero_app:8002
     networks:
       backend:
         ipv4_address: 172.16.238.9
