@@ -79,8 +79,8 @@ async def create_user(user: UserSchema, session: T_Session, user_current: T_Curr
 
 
 @router.get('/', response_model=UserList)
-async def read_users(session: T_Session, user: T_CurrentUser, page: int = 1, page_size: int = 10):
-    verify_user_with_roles_and_permissions(user, permissions=["is_superuser"])
+async def read_users(session: T_Session, page: int = 1, page_size: int = 10):
+    #verify_user_with_roles_and_permissions(user, permissions=["is_superuser"])
     skip = (page - 1) * page_size
     limit = page_size
 

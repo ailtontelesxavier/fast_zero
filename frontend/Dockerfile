@@ -11,7 +11,7 @@ COPY package.json package-lock.json ./
 RUN npm install
 
 # Copie as variáveis de ambiente
-COPY .env.local ./
+COPY .env.local .env.production ./
 
 # Copie o restante do código do projeto
 COPY . .
