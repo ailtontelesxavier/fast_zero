@@ -133,33 +133,36 @@ def insertParcela(row):
 
     with engine2.connect() as connection:
         transaction = connection.begin()
-        try:
-            print(row)
-            # Execute o comando SQL com a ligação de parâmetros
-            resultado = connection.execute(
-                sa.text(insert_sql),
-                {
-                    'id': row[0],
-                    'type': row[1],
-                    'data': row[2] if row[2] else None,
-                    'val_parcela': row[3],
-                    'val_pago': row[4] if row[4] else None,
-                    'obs_val_pago': row[5],
-                    'is_pg': row[6],
-                    'is_val_juros': row[7],
-                    'data_pgto': row[8] if row[8] else None,
-                    'negociacao_id': row[9],
-                    'numero_parcela': row[10],
-                },
-            )
-            print(resultado)
-            transaction.commit()
-        except Exception as e:
-            transaction.rollback()
-            print(f'Erro ao inserir negociação de crédito: {e}')
-            raise
+        db_row = connection.execute(sa.text(f"SELECT id FROM parcelamento_negociacao where id ={row[0]}"))
+        result = db_row.fetchone()
+        if not result:
+            try:
+                print(row)
+                # Execute o comando SQL com a ligação de parâmetros
+                resultado = connection.execute(
+                    sa.text(insert_sql),
+                    {
+                        'id': row[0],
+                        'type': row[1],
+                        'data': row[2] if row[2] else None,
+                        'val_parcela': row[3],
+                        'val_pago': row[4] if row[4] else None,
+                        'obs_val_pago': row[5],
+                        'is_pg': row[6],
+                        'is_val_juros': row[7],
+                        'data_pgto': row[8] if row[8] else None,
+                        'negociacao_id': row[9],
+                        'numero_parcela': row[10],
+                    },
+                )
+                print(resultado)
+                transaction.commit()
+            except Exception as e:
+                transaction.rollback()
+                print(f'Erro ao inserir negociação de crédito: {e}')
+                raise
 
 
 if __name__ == '__main__':
-    # consultaNegociacaoCredito()
+    #consultaNegociacaoCredito()
     consultaParcelas()
