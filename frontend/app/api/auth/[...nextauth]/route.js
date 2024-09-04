@@ -91,6 +91,7 @@ const authOptions = {
         //console.log(decoded)
         token['exp'] = decoded.exp;
         token['sub'] = decoded.sub;
+        token['is_superuser'] = decoded.is_superuser;
         return token;
       }
       const valide = await verifyToken(token["access_token"])

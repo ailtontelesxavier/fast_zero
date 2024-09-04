@@ -4,6 +4,15 @@ ENV POETRY_VIRTUALENVS_CREATE=false
 WORKDIR /app
 COPY . .
 
+# Instale o tzdata para configurar o fuso horário
+RUN apt-get update && \
+    apt-get install -y tzdata && \
+    ln -fs /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime && \
+    dpkg-reconfigure --frontend noninteractive tzdata
+
+# Defina a variável de ambiente TZ para o fuso horário correto
+ENV TZ="America/Sao_Paulo"
+
 COPY entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh && pip install poetry \
 && poetry config installer.max-workers 10 \

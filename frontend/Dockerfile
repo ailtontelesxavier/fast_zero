@@ -7,6 +7,14 @@ WORKDIR /app
 # Copie apenas os arquivos de dependências para a imagem
 COPY package.json package-lock.json ./
 
+# Instale o tzdata para configurar o fuso horário usando apk
+RUN apk add --no-cache tzdata && \
+    ln -fs /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime && \
+    echo "America/Sao_Paulo" > /etc/timezone
+
+# Defina a variável de ambiente TZ para o fuso horário correto
+ENV TZ="America/Sao_Paulo"
+
 # Instale as dependências do projeto
 RUN npm install
 
