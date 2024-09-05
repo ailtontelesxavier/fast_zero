@@ -35,18 +35,20 @@ services:
         ipv4_address: 172.16.238.8
 
   database:
-    image: postgres
+    image: postgres:16.4
     networks:
       backend:
         ipv4_address: 172.16.238.10
     volumes:
       - pgdata:/var/lib/postgresql/data
     environment:
+      TZ: America/Sao_Paulo
       POSTGRES_USER: app_user
       POSTGRES_DB: app_db
       POSTGRES_PASSWORD: app_password
     ports:
       - "5433:5432"
+    command: ["postgres", "-c", "timezone=America/Sao_Paulo"]
 
   fastzero_app:
     image: fastzero_app

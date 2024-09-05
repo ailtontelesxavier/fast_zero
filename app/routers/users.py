@@ -14,6 +14,7 @@ from app.core.security import (
     verify_password,
     verify_user_with_roles_and_permissions,
 )
+from app.core.util import get_data_now_for_time_zone
 from app.models.models import User, UserRoles
 from app.schemas.schemas import (
     ListUserFull,
@@ -68,9 +69,7 @@ async def create_user(user: UserSchema, session: T_Session, user_current: T_Curr
 
     # configura otp
     # totp = pyotp.TOTP(db_user.otp_base32).now()
-    TIME_ZONE = 'America/Sao_Paulo'
-    tz = pytz.timezone(TIME_ZONE)
-    db_user.otp_created_at = datetime.now(tz)
+    db_user.otp_created_at = get_data_now_for_time_zone()
 
     session.add(db_user)
     session.commit()
@@ -256,6 +255,37 @@ async def update_user_by_id(
     session.add(db_user)
     session.commit()
     session.refresh(db_user)
+
+    return db_user
+
+
+@router.put('/update-otp/{user_id}', response_model=UserQrCode)
+async def update_otp_user_by_id(
+    user_id: int,
+    user_current: T_CurrentUser,
+    session: T_Session,
+):
+    verify_user_with_roles_and_permissions(user_current, permissions=["is_superuser"])
+    db_user = session.scalar(select(User).where(User.id == user_id))
+
+    if not db_user:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND, detail='User not found.'
+        )
+
+    try:
+        setattr(db_user, 'otp_base32', User.create_otp_base32())
+        setattr(db_user, 'otp_created_at', get_data_now_for_time_zone())
+
+        setattr(db_user, 'updated_at', func.now())
+        setattr(db_user, 'otp_auth_url', db_user.get_otp_auth_url())
+        setattr(db_user, 'qr_code', str(db_user.get_qr_code()))
+
+        session.commit()
+        session.refresh(db_user)
+    except Exception as e:
+        print(f'Erro ao update otp: {e}')
+        raise
 
     return db_user
 

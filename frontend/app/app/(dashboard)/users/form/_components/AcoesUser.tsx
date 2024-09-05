@@ -27,12 +27,13 @@ import api from "@/lib/api";
 import { AlertSuccess } from "@/components/AlertSuccess";
 import { AlertDestructive } from "@/components/AlertDestructive";
 
-export default function AcoesUser({id}: {id: number}) {
+export default function AcoesUser({ id, setIsBusca }: { id: number, setIsBusca: Function }) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [selectOption, setSelectOption] = useState("");
   const [user, setUser] = useState<any>({});
+  const [loading, setLoading] = useState(false);
 
   function hangleOnValueChange(value: string) {
     setSelectOption(value);
@@ -84,11 +85,14 @@ export default function AcoesUser({id}: {id: number}) {
 
   async function save() {
     try {
-      await api.put("/users/update-password/"+id, {
-            password: user.password,
-        }).then((response: any) => {
+      await api
+        .put("/users/update-password/" + id, {
+          password: user.password,
+        })
+        .then((response: any) => {
           if (response.status === 200) {
             setSuccess("Senha atualizada com sucesso");
+            setIsBusca(true)
             limparForm();
           }
         })
@@ -97,6 +101,35 @@ export default function AcoesUser({id}: {id: number}) {
       if (error.response) {
         setError(error.response.data.detail + "; " + error.message);
       }
+    }
+  }
+
+  async function alterOTP() {
+    try {
+      setLoading(true);
+      await api
+        .put("/users/update-otp/" + id)
+        .then((response: any) => {
+          if (response.status === 200) {
+            setSuccess("OTP atualizada com sucesso");
+            setIsBusca(true)
+          }
+        })
+        .catch((error: any) => {
+          const responseObject = JSON.parse(error.request.response);
+          var errors = "";
+          console.log(responseObject.detail);
+          responseObject.detail.forEach((val: any) => {
+            errors += `(Campo: ${val.loc[1]} Erro: ${val.msg}) `;
+          });
+        });
+    } catch (error: any) {
+      if (error.response) {
+        console.log(error.response.data.detail)
+        setError(error.response.data.detail + "; " + error.message);
+      }
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -113,6 +146,7 @@ export default function AcoesUser({id}: {id: number}) {
           <SelectGroup>
             <SelectLabel>Acoes</SelectLabel>
             <SelectItem value="1">Alterar senha</SelectItem>
+            <SelectItem value="2">Alterar OTP</SelectItem>
           </SelectGroup>
         </SelectContent>
       </Select>
@@ -137,8 +171,10 @@ export default function AcoesUser({id}: {id: number}) {
                   placeholder="senha"
                   className="col-span-3"
                   value={user.password ?? ""}
-                  onChange={(e) => setUser({ ...user, password: e.target.value })}
-                  />
+                  onChange={(e) =>
+                    setUser({ ...user, password: e.target.value })
+                  }
+                />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="password2" className="text-right">
@@ -153,7 +189,7 @@ export default function AcoesUser({id}: {id: number}) {
                     setUser({ ...user, password2: e.target.value })
                   }
                   className="col-span-3"
-                  />
+                />
               </div>
             </div>
             <div className="flex items-end justify-end gap-2">
@@ -161,7 +197,7 @@ export default function AcoesUser({id}: {id: number}) {
                 type="button"
                 variant={"secondary"}
                 onClick={() => closeModal()}
-                >
+              >
                 Cancelar
               </Button>
               <Button type="submit">Salvar</Button>
@@ -170,16 +206,25 @@ export default function AcoesUser({id}: {id: number}) {
           <DialogFooter>
             <section className="w-full">
               {success && (
-                  <AlertSuccess setSuccess={setSuccess}>{success}</AlertSuccess>
-                )}
+                <AlertSuccess setSuccess={setSuccess}>{success}</AlertSuccess>
+              )}
               {error && (
-                  <AlertDestructive setError={setError}>{error}</AlertDestructive>
-                )}
+                <AlertDestructive setError={setError}>{error}</AlertDestructive>
+              )}
             </section>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <Button size={"sm"} variant={"outline"} onClick={() => openModal()}>
+      <Button
+        size={"sm"}
+        variant={"outline"}
+        onClick={() => {
+          if (selectOption === "1") openModal();
+          if (selectOption === "2") {
+            alterOTP();
+          }
+        }}
+      >
         <PaperPlaneIcon className="h-4 x-4" />
       </Button>
     </div>

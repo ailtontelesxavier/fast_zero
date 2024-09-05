@@ -220,6 +220,18 @@ class User(Base):
             'total_records': total_records,
         }
 
+    def get_otp_auth_url(self):
+        self.otp_auth_url = pyotp.TOTP(self.otp_base32).provisioning_uri(
+            name=self.full_name.lower(), issuer_name='Codigo'
+        )
+        return self.otp_auth_url
+
+    def get_qr_code(self):
+        stream = BytesIO()
+        image = qrcode.make(f'{self.otp_auth_url}')
+        image.save(stream)
+        self.qr_code = stream.getvalue()
+        return self.qr_code
 
 # Evento para before_insert
 @event.listens_for(User, 'before_insert')

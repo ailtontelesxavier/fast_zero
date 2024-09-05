@@ -17,6 +17,7 @@ export default function UserFormPage({ params }: { params: { id: number } }) {
   const router = useRouter();
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [isBusca, setIsBusca] = useState(true);
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [is_active, setIs_active] = useState(false);
@@ -26,28 +27,30 @@ export default function UserFormPage({ params }: { params: { id: number } }) {
 
   
   useEffect(() => {
-    obterUser();
-  }, [success]);
+    if(isBusca) obterUser();
 
-  async function obterUser() {
-    try {
-      await api.get("/users/" + params.id).then((response: any) => {
-        console.log(response);
-        if (response.status === 200) {
-          setUsername(response.data.username);
-          setEmail(response.data.email);
-          setIs_active(response.data.is_active);
-          setCreated_at(response.data.created_at);
-          setUpdated_at(response.data.updated_at);
-          setOtp_base32(response.data.qr_code);
+    setIsBusca(false);
+    async function obterUser() {
+      try {
+        await api.get("/users/" + params.id).then((response: any) => {
+          console.log(response);
+          if (response.status === 200) {
+            setUsername(response.data.username);
+            setEmail(response.data.email);
+            setIs_active(response.data.is_active);
+            setCreated_at(response.data.created_at);
+            setUpdated_at(response.data.updated_at);
+            setOtp_base32(response.data.qr_code);
+          }
+        });
+      } catch (error:any) {
+        if (error.response) {
+          setError(error.response.data.detail + ";" + error.message);
         }
-      });
-    } catch (error:any) {
-      if (error.response) {
-        setError(error.response.data.detail + ";" + error.message);
       }
     }
-  }
+  }, [isBusca, params.id]);
+
 
   async function saveUser() {
     try {
@@ -61,6 +64,7 @@ export default function UserFormPage({ params }: { params: { id: number } }) {
         .then((response: any) => {
           if (response.status === 200) {
             setSuccess("Atualizado com sucesso");
+            setIsBusca(true)
           }
         })
         .catch((error) => setError("Error interno: " + error));
@@ -83,7 +87,7 @@ export default function UserFormPage({ params }: { params: { id: number } }) {
       <PageTitle title="Cadastro de Usuario" />
       <section>
         <div className="flex w-full justify-end ">
-          <AcoesUser id={params.id}/>
+          <AcoesUser id={params.id} setIsBusca={setIsBusca}/>
         </div>
         <form onSubmit={handleUpdateUser}>
           <div className="flex flex-col gap-2 md:grid grid-cols-2">
