@@ -44,6 +44,7 @@ interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 export const dynamic = 'force-dynamic';
 
 export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
+  const [loading, setLoading] = useState(false);
   const form = useForm<LoginFormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -56,12 +57,14 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   const [ms_error, setMs_error] = useState("");
 
   const onSubmit = async (values: LoginFormData) => {
+    setLoading(true);
     const resp = await signIn("credentials", { redirect: false, ...values });
     if (!resp?.ok) {
       setMs_error("Erro verifique usuario e senha.");
     } else {
       setMs_error("");
     }
+    setLoading(false);
   };
 
   const router = useRouter();
@@ -169,9 +172,9 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
           className="py-1"
           variant={"outline"}
           size={"lg"}
-          disabled={status === "loading"}
+          disabled={loading}
         >
-          {status === "loading" ? (
+          {loading ? (
             <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
           ) : (
             ""

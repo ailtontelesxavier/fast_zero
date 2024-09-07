@@ -1,8 +1,8 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import axios from "axios";
-import api from "@/lib/api";
 import { decodeJwt } from 'jose';
+import { getSession } from "next-auth/react";
 
 // These two values should be a bit less than actual token lifetimes
 const BACKEND_ACCESS_TOKEN_LIFETIME = 60 * 60;            // 40 minutes
@@ -116,6 +116,11 @@ const authOptions = {
 
 const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };
+
+const apiUrl = process.env.NEXTAUTH_BACKEND_URL || 'http://127.0.0.1:8002'
+
+export default apiUrl;
+
 
 async function verifyToken(access_token) {
   try {
