@@ -21,6 +21,7 @@ import importlib
 MODEL_PATHS = [
     'app.models.models',  # Por exemplo, se os arquivos estão em app/models
     'app.juridico.models',  # Adicione outros caminhos conforme necessário
+    'app.pessoa.models',
 ]
 
 

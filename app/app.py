@@ -7,6 +7,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.juridico import (
     router_negociacao,
 )
+from app.pessoa import (
+    router_municipio,
+)
 from app.routers import (
     auth,
     permission_role_permission,
@@ -61,6 +64,7 @@ app.include_router(permission_role_permission.router)
 app.include_router(auth.router)
 app.include_router(todos.router)
 app.include_router(router_negociacao.router)
+app.include_router(router_municipio.router)
 
 
 @app.get('/', status_code=HTTPStatus.OK, response_model=Message)

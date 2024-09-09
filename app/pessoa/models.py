@@ -18,6 +18,7 @@ from app.models.models import Base
 
 table_registry = registry()
 
+
 @table_registry.mapped_as_dataclass
 class Regiao(Base):
     __tablename__ = 'regiao'
@@ -26,7 +27,7 @@ class Regiao(Base):
             'nome',
             'sigla',
             name='unique_regiao_nome_sigla',
-        )
+        ),
     )
     id: Mapped[int] = mapped_column(init=False, primary_key=True, autoincrement=True)
     nome: Mapped[str]
@@ -36,6 +37,7 @@ class Regiao(Base):
         return f'{self.nome} - {self.sigla}'
 
 
+@table_registry.mapped_as_dataclass
 class Uf(Base):
     """
     API - https://servicodados.ibge.gov.br/api/docs/localidades
@@ -51,6 +53,7 @@ class Uf(Base):
         return self.sigla
 
 
+@table_registry.mapped_as_dataclass
 class Municipio(Base):
     """
     API - https://servicodados.ibge.gov.br/api/v1/localidades/estados/{UF}/municipios
@@ -64,7 +67,7 @@ class Municipio(Base):
         ForeignKey('uf.id', ondelete='CASCADE')
     )
 
-    uf: Mapped[Uf] = relationship(Uf, back_populates='Municipio')
+    uf: Mapped['Uf'] = relationship('uf', back_populates='municipio')
 
 
     def __repr__(self):
