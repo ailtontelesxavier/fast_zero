@@ -29,7 +29,7 @@ class Regiao(Base):
             name='unique_regiao_nome_sigla',
         ),
     )
-    id: Mapped[int] = mapped_column(init=False, primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     nome: Mapped[str]
     sigla: Mapped[str]
 
@@ -45,9 +45,11 @@ class Uf(Base):
     """
     __tablename__ = 'uf'
 
-    id: Mapped[int] = mapped_column(init=False, primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     sigla: Mapped[str] = mapped_column(String(2), unique=True, nullable=False)
     nome: Mapped[str]
+
+    #municipio: Mapped['Municipio'] = relationship('Municipio')
 
     def __repr__(self):
         return self.sigla
@@ -61,13 +63,13 @@ class Municipio(Base):
     """
     __tablename__ = 'municipio'
 
-    id: Mapped[int] = mapped_column(init=False, primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     nome: Mapped[str]
     uf_id: Mapped[int] = mapped_column(
         ForeignKey('uf.id', ondelete='CASCADE')
     )
 
-    uf: Mapped['Uf'] = relationship('uf', back_populates='municipio')
+    uf: Mapped[Uf] = relationship('Uf')
 
 
     def __repr__(self):

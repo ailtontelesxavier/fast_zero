@@ -41,7 +41,7 @@ def update_municipios(session: T_Session):
     # salva stados e cidades via api ibge
     list_uf = getStates()
     for _uf in list_uf:
-        unidade = session.get_one(Uf, _uf.id)
+        unidade = session.get(Uf, _uf.get('id'))
         if not unidade:
             unidade = Uf(
                 id=_uf.get('id'),
@@ -49,7 +49,6 @@ def update_municipios(session: T_Session):
                 nome=_uf.get('nome')
             )
             session.add(unidade)
-            session.refresh(unidade)
         
         regiao = session.get(Regiao, _uf.get('regiao').get('id'))
         if not regiao:
@@ -59,7 +58,6 @@ def update_municipios(session: T_Session):
                 sigla=_uf.get('regiao').get('sigla')
             )
             session.add(regiao)
-            session.refresh(regiao)
         
         list_city = getCityforState(_uf.get('sigla'))
         for city in list_city:
@@ -68,7 +66,9 @@ def update_municipios(session: T_Session):
                 db_municipio = Municipio(
                     id=city.get('id'),
                     nome=city.get('nome'),
-                    uf=unidade[0]
+                    uf_id=_uf.get('id'),
+                    uf=unidade,
                 )
                 session.add(db_municipio)
-                session.refresh(db_municipio)
+
+        session.commit()
