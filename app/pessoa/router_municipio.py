@@ -23,13 +23,16 @@ def save_states_and_citys():
 
 """
 
+from http import HTTPStatus
 from typing import Annotated
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import asc, func, select
 from sqlalchemy.orm import Session
 
 from app.core.database import get_session
 from app.pessoa.apis import getCityforState, getStates
 from app.pessoa.models import Municipio, Regiao, Uf
+from app.pessoa.municipio_schema import MunicipioList, UfList
 
 
 router = APIRouter(prefix='/pessoa', tags=['municipio'])
@@ -72,3 +75,46 @@ def update_municipios(session: T_Session):
                 session.add(db_municipio)
 
         session.commit()
+
+
+@router.get('/uf', response_model=UfList)
+def read_ufs(session: T_Session):
+    rows = session.scalars(
+        select(Uf).order_by(Uf.sigla)
+    ).all()
+
+    return {'rows': rows}
+
+
+@router.get('/cidades/{uf_id}', response_model=MunicipioList)
+def read_cidades_by_uf(
+    session:T_Session,
+    uf_id: int,
+    page: int = 1,
+    page_size: int = 10
+):
+    skip = (page - 1) * page_size
+    limit = page_size
+
+    db_uf = session.get(Uf, uf_id)
+    
+    if db_uf is None:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND,
+            detail='UF not found'
+        )
+
+    query = select(Municipio).where(
+        (Municipio.uf_id == uf_id)
+    )
+    total_records = session.scalar(
+        select(func.count()).select_from(query.subquery())
+    )
+
+    rows = session.scalars(
+        query.order_by(asc(Municipio.nome))
+        .offset(skip)
+        .limit(limit)
+    ).all()
+
+    return {'rows': rows, 'total_records': total_records}

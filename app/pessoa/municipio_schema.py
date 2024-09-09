@@ -12,7 +12,6 @@ class UfOut(UFIn):
 
 class UfList(BaseModel):
     rows: list[UfOut]
-    total_records: int
 
 
 class RegiaoIn(BaseModel):
