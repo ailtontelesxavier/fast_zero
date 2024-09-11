@@ -1,7 +1,9 @@
 from contextlib import asynccontextmanager
 from http import HTTPStatus
 
-from fastapi import FastAPI
+import prometheus_client
+
+from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.juridico import (
@@ -70,3 +72,10 @@ app.include_router(router_municipio.router)
 @app.get('/', status_code=HTTPStatus.OK, response_model=Message)
 def read_root():
     return {'message': 'Ola Mundo!'}
+
+@app.get('/metrics')
+def get_metrics():
+    return Response(
+        media_type='text/plain',
+        content=prometheus_client.generate_latest(),
+    )

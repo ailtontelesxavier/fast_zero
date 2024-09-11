@@ -117,9 +117,6 @@ const authOptions = {
 const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };
 
-const apiUrl = process.env.NEXTAUTH_BACKEND_URL || 'http://127.0.0.1:8002'
-
-export default apiUrl;
 
 
 async function verifyToken(access_token) {

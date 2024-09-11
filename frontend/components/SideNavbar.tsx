@@ -156,10 +156,16 @@ export default function SideNavbar({}: Props) {
     setIsPermissionSubmenuOpen(!isPermissionSubmenuOpen);
   }
 
-  // Filtrando os links com base nos módulos disponíveis
-  const filteredLinks = links.filter((link) =>
-    modulos.some((module:any) => module.title === link.title)
-  );
+  var filteredLinks = [];
+
+  if(session?.is_superuser) {
+    filteredLinks = links;
+  } else {
+    // Filtrando os links com base nos módulos disponíveis
+    filteredLinks = links.filter((link) =>
+      modulos.some((module:any) => module.title === link.title)
+    );
+  }
 
   return (
     <div className="relative min-w-[80px] border-r px-3  pb-10 pt-24 ">
@@ -176,7 +182,7 @@ export default function SideNavbar({}: Props) {
       )}
       <Nav
         isCollapsed={mobileWidth ? true : isCollapsed}
-        links={links.map((link:any) => ({
+        links={filteredLinks.map((link:any) => ({
           ...link,
           isActive: pathname === link.href,
           submenu: link.submenu?.map((sublink:any) => ({

@@ -1,7 +1,7 @@
-import apiUrl from '@/app/api/auth/[...nextauth]/route';
 import axios from 'axios';
 import { getSession } from "next-auth/react";
 
+const apiUrl = process.env.NEXTAUTH_BACKEND_URL || 'http://127.0.0.1:8002'
 
 const api = axios.create({
     baseURL:apiUrl
