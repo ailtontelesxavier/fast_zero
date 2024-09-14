@@ -74,3 +74,13 @@ class Municipio(Base):
 
     def __repr__(self):
         return self.nome + ' - ' + self.uf.sigla
+
+
+@table_registry.mapped_as_dataclass
+class Pessoa(Base):
+    id: Mapped[int] = mapped_column(init=False, primary_key=True, autoincrement=True)
+    #fisica=11, juridica=14
+    cpf_cnpj: Mapped[str] = mapped_column(String(14), unique=True)
+    rg: Mapped[str] = mapped_column(String(11), nullable=True)
+    ie: Mapped[str] = mapped_column(String(12), nullable=True)
+    is_blocked: Mapped[bool] = mapped_column(default=False)
