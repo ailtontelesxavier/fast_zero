@@ -84,3 +84,4 @@ class Pessoa(Base):
     rg: Mapped[str] = mapped_column(String(11), nullable=True)
     ie: Mapped[str] = mapped_column(String(12), nullable=True)
     is_blocked: Mapped[bool] = mapped_column(default=False)
+    
