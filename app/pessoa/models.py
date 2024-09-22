@@ -77,11 +77,46 @@ class Municipio(Base):
 
 
 @table_registry.mapped_as_dataclass
+class bairro(Base):
+    __tablename__ = 'bairro'
+    __table_args__ = (
+        UniqueConstraint(
+            'municipio_id', 'nome', name='uix_municipio_id_nome'
+        )
+    )
+
+    id: Mapped[int] = mapped_column(init=False, primary_key=True)
+    municipio_id: Mapped[int] = mapped_column(ForeignKey('municipio.id'))
+    nome: Mapped[str]
+
+
+@table_registry.mapped_as_dataclass
+class cep(Base):
+    __tablename__ = 'cep'
+    id: Mapped[int] = mapped_column(init=False, primary_key=True)
+    cep: Mapped[str] = mapped_column(String(10))
+    bairro_id: Mapped[int] = mapped_column(ForeignKey('bairro.id'))
+
+
+@table_registry.mapped_as_dataclass
+class endereco(Base):
+    __tablename__ = 'endereco'
+    id: Mapped[int] = mapped_column(int=False, primary_key=True)
+    rua: Mapped[str] = mapped_column(String(255))
+    numero: Mapped[str] = mapped_column(String(10))
+    complemento: Mapped[str]
+    cep_id: Mapped[int] = mapped_column(ForeignKey('cep.id'))
+
+
+@table_registry.mapped_as_dataclass
 class Pessoa(Base):
+    __tablename__ = 'pessoa'
     id: Mapped[int] = mapped_column(init=False, primary_key=True, autoincrement=True)
     #fisica=11, juridica=14
     cpf_cnpj: Mapped[str] = mapped_column(String(14), unique=True)
     rg: Mapped[str] = mapped_column(String(11), nullable=True)
     ie: Mapped[str] = mapped_column(String(12), nullable=True)
+    email: Mapped[str] = mapped_column(nullable=True)
+    telefone: Mapped[str] = mapped_column(nullable=True)
     is_blocked: Mapped[bool] = mapped_column(default=False)
-    
+    endereco_id: Mapped[int] = mapped_column(ForeignKey('endereco.id'))
