@@ -1,10 +1,13 @@
 from datetime import timedelta
 from decimal import Decimal
+from datetime import datetime
+from enum import Enum
 from dateutil.relativedelta import relativedelta
 from sqlalchemy import (
     ForeignKey,
     String,
     UniqueConstraint,
+    func,
 )
 from sqlalchemy.orm import (
     Mapped,
@@ -77,7 +80,7 @@ class Municipio(Base):
 
 
 @table_registry.mapped_as_dataclass
-class bairro(Base):
+class Bairro(Base):
     __tablename__ = 'bairro'
     __table_args__ = (
         UniqueConstraint(
@@ -91,21 +94,46 @@ class bairro(Base):
 
 
 @table_registry.mapped_as_dataclass
-class cep(Base):
+class Cep(Base):
     __tablename__ = 'cep'
+    __table_args__ = (
+        UniqueConstraint(
+            'cep', 'bairro_id', name='uix_cep_bairro_id'
+        )
+    )
     id: Mapped[int] = mapped_column(init=False, primary_key=True)
     cep: Mapped[str] = mapped_column(String(10))
     bairro_id: Mapped[int] = mapped_column(ForeignKey('bairro.id'))
 
 
+#@table_registry.mapped_as_dataclass
+#class Endereco(Base):
+#    __tablename__ = 'endereco'
+#    id: Mapped[int] = mapped_column(int=False, primary_key=True)
+#    rua: Mapped[str] = mapped_column(String(255))
+#    numero: Mapped[str] = mapped_column(String(10))
+#    complemento: Mapped[str]
+#    cep_id: Mapped[int] = mapped_column(ForeignKey('cep.id'))
+#    pessoa_id: Mapped[int] = mapped_column(ForeignKey='Pessoa.id')
+
+
+class TipoEndereco(str, Enum):
+    p = 'principal'
+    c = 'Comercial'
+    o = 'Outro'
+
 @table_registry.mapped_as_dataclass
-class endereco(Base):
-    __tablename__ = 'endereco'
-    id: Mapped[int] = mapped_column(int=False, primary_key=True)
-    rua: Mapped[str] = mapped_column(String(255))
-    numero: Mapped[str] = mapped_column(String(10))
-    complemento: Mapped[str]
-    cep_id: Mapped[int] = mapped_column(ForeignKey('cep.id'))
+class TelefonePessoa(Base):
+    __tablename__ = 'telefone_pessoa'
+    __table_args__ = (
+        UniqueConstraint(
+            'tipo', 'telefone', 'pessoa_id', name='uix_tipo_telefone_pessoa_id'
+        )
+    )
+    id: Mapped[int] = mapped_column(init=False, primary_key=True, autoincrement=True)
+    tipo: Mapped[TipoEndereco]
+    telefone: Mapped[str]
+    pessoa_id: Mapped[int] = mapped_column(ForeignKey='Pessoa.id')
 
 
 @table_registry.mapped_as_dataclass
@@ -114,9 +142,19 @@ class Pessoa(Base):
     id: Mapped[int] = mapped_column(init=False, primary_key=True, autoincrement=True)
     #fisica=11, juridica=14
     cpf_cnpj: Mapped[str] = mapped_column(String(14), unique=True)
+    rua: Mapped[str] = mapped_column(String(255))
+    numero: Mapped[str] = mapped_column(String(10))
+    complemento: Mapped[str]
+    cep_id: Mapped[int] = mapped_column(ForeignKey('cep.id'))
     rg: Mapped[str] = mapped_column(String(11), nullable=True)
     ie: Mapped[str] = mapped_column(String(12), nullable=True)
     email: Mapped[str] = mapped_column(nullable=True)
     telefone: Mapped[str] = mapped_column(nullable=True)
     is_blocked: Mapped[bool] = mapped_column(default=False)
-    endereco_id: Mapped[int] = mapped_column(ForeignKey('endereco.id'))
+
+    created_at: Mapped[datetime] = mapped_column(
+        init=False, server_default=func.now()
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        init=False, server_default=func.now(), onupdate=func.now()
+    )
