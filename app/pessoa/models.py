@@ -85,7 +85,7 @@ class Bairro(Base):
     __table_args__ = (
         UniqueConstraint(
             'municipio_id', 'nome', name='uix_municipio_id_nome'
-        )
+        ),
     )
 
     id: Mapped[int] = mapped_column(init=False, primary_key=True)
@@ -99,7 +99,7 @@ class Cep(Base):
     __table_args__ = (
         UniqueConstraint(
             'cep', 'bairro_id', name='uix_cep_bairro_id'
-        )
+        ),
     )
     id: Mapped[int] = mapped_column(init=False, primary_key=True)
     cep: Mapped[str] = mapped_column(String(10))
@@ -128,12 +128,12 @@ class TelefonePessoa(Base):
     __table_args__ = (
         UniqueConstraint(
             'tipo', 'telefone', 'pessoa_id', name='uix_tipo_telefone_pessoa_id'
-        )
+        ),
     )
     id: Mapped[int] = mapped_column(init=False, primary_key=True, autoincrement=True)
     tipo: Mapped[TipoEndereco]
     telefone: Mapped[str]
-    pessoa_id: Mapped[int] = mapped_column(ForeignKey='Pessoa.id')
+    pessoa_id: Mapped[int] = mapped_column(ForeignKey('pessoa.id'))
 
 
 @table_registry.mapped_as_dataclass

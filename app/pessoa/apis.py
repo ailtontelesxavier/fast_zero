@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-import json, requests
+import json
+import requests
 from app.core.util import get_numbers
 
 
